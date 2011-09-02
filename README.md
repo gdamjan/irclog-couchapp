@@ -1,12 +1,16 @@
-## IrcLog CouchApp
+# IrcLog CouchApp
+
+This is a CouchApp to view irc logs stored in a CouchDB database. The irclogs
+can be stored by my https://github.com/gdamjan/erlang-irc-bot program, or
+anything else that will store them in the following structure:
 
 
-   {
-   "sender": "SomeOne",
-   "channel": "trollclub",
-   "message": "hi hey, can I ask a question",
-   "timestamp": 1283207105.891249
-   }
+    {
+      "sender": "SomeOne",
+      "channel": "trollclub",
+      "message": "hi hey, can I ask a question",
+      "timestamp": 1283207105.891249
+    }
 
 
 ## Install
