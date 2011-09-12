@@ -1,0 +1,14 @@
+[
+ {"from": "/",         "to": "index.html"},
+ {"from": "/script",   "to": "/script"},
+ {"from": "/script/*", "to": "/script/*"},
+ {"from": "/style",    "to": "/style"},
+ {"from": "/style/*",  "to": "/style/*"},
+ {"from": "/images",   "to": "/images"},
+ {"from": "/images/*", "to": "/images/*"},
+ {"from": "/api",      "to": "../../"},
+ {"from": "/api/*",    "to": "../../*"},
+ {"from": "/ddoc",     "to": "./"},
+ {"from": "/ddoc/*",   "to": "./*"},
+ {"from": "/*",        "to": "*"},
+]

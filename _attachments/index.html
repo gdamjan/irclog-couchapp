@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>IRClogger 2.0</title>
+
+  <script type="text/javascript">
+      // make sure we are on a pathname that ends with /
+      // so that relative urls go above the design-doc
+      if (!/\/$/.test(window.location.pathname))
+          window.location.pathname = window.location.pathname + "/";
+  </script>
+
+  <link type="text/css" rel="stylesheet" href="style/style.css" />
+  <link rel="apple-touch-icon" href="images/favicon.png" />
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+
+  <!-- 3rd party -->
+  <script type="text/javascript" src="script/jquery-1.6.3.min.js"></script>
+  <script type="text/javascript" src="script/jquery.mustache.js"></script>
+  <script type="text/javascript" src="script/jquery.notice.js"></script>
+  <link type="text/css" rel="stylesheet" href="style/jquery.notice.css" />
+
+  <!-- my stuff -->
+  <script type="text/javascript" src="script/utils.js"></script>
+  <script type="text/javascript" src="script/title.alert.js"></script>
+  <script type="text/javascript" src="script/colorizer.js"></script>
+  <script type="text/javascript" src="script/irclog.js"></script>
+</head>
+<body>
+<header>
+  <h1>IRC logs with realtime updates</h1>
+</header>
+
+<div id="container">
+  <div id="morehistory">&#8593;previous history&#8593;</div>
+  <table id="irclog" width="100%"> </table>
+</div>
+
+<footer>
+  <a href="https://github.com/gdamjan/irclog-couchapp">github.com/gdamjan/irclog-couchapp</a>
+</footer>
+<div id="pi"><a>&pi;</a></div>
+
+<script type="text/template" id="notificationTemplate">
+  <div>
+    <h1>{{title}}</h1>
+    <p>{{text}}</p>
+  </div>
+</script>
+
+<script type="text/template" id="messageTemplate">
+<tr>
+  <td width="1%" valign="top" class="timestamp">
+    <a href="{{permalink}}" id="{{anchor}}">{{timestamp}}</a>
+  </td>
+  <td class="message">
+    <span style="background-color: {{nickname_color}}" class="nickname">{{nickname}}</span>
+    <span>{{message}}</span>
+  </td>
+</tr>
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+.timestamp { font-family: monospace; color: #808080; font-size: 80%;  padding-top: 8px; }
+.timestamp a { color: #808080; text-decoration: none; }
+
+.date {
+  color: #a0a0a0;
+  border-top: 1px dashed #a0a0a0;
+}
+
+.date span {
+  float: right;
+/*  margin-top: -6px; */
+}
+
+.nickname {
+  color: #000000;
+  font-size: 70%;
+  padding: 1px 2px;
+  margin-right: 4px;
+}
+
+.message {
+  font-size: 100%;
+  margin-left: 3.0em;
+}
+
+.channels {
+  list-style: square outside none;
+  font-size: 90%;
+  padding-left: 1em;
+  margin-top: 0;
+}
+
+#lines .message {
+  color: #000000;
+}
+
+#notifications * {
+  font-size: 90%;
+  color: #ddd;
+  text-decoration: none;
+}
+
+#morehistory { text-align: center; text-decoration: none; color:#808080; cursor:pointer }
+
+#pi {
+  position: fixed;
+  font-size: 140%;
+  font-family: serif;
+  width: auto;
+  height: auto;
+  bottom: 0px;
+  right: 0px;
+  color:#808080;
+  padding: 1px 3px;
+/*
+  border: 1px solid;
+  background-color: #bff;
+*/
+  background-position:top left;
+  background-repeat:repeat-y;
+  cursor:pointer;
+}
+
+a:link.tag, a:visited.tag { border: 1px dashed #ccc; background: #ccc; text-decoration: none; }
+a:hover.tag { border: 1px solid #eee; }
+
+footer { border-top: 1px dashed #CCCCCC; margin-top: 1em; }
+footer a { text-decoration: none; color: #808080; }
+
+body {
+  font-family: sans-serif;
+  font-size: 100%;
+}
