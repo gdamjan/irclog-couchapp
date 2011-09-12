@@ -1,4 +1,4 @@
 {
     "name": "IrcLog CouchApp",
-    "description": "IrcLog with changes feed."
+    "description": "IrcLog with realtime updates"
 }
