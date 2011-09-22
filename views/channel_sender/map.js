@@ -6,5 +6,5 @@
 
 function(doc) {
   if (doc.channel && doc.sender && doc.timestamp)
-    emit([doc.channel, doc.sender, doc.timestamp], null);
+    emit([doc.channel.toLowerCase(), doc.sender.toLowerCase(), doc.timestamp], null);
 }
