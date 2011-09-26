@@ -1,6 +1,8 @@
-var $Colorizer = (function (undefined) {
-  // create the CSS ?
+"use strict";
+
+var $Colorizer = (function (GLOBAL, undefined) {
   var colors = {};
+
   var used = 0;
   var max = 100;
   function getColor(key) {
@@ -17,4 +19,4 @@ var $Colorizer = (function (undefined) {
     return colors[key];
   }
   return getColor;
-})();
+})(window);
