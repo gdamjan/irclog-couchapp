@@ -2,6 +2,7 @@ jQuery(function ($) {
 
    /* initialization */
    var current_channel = $Utils.getQueryVariable("channel", "lugola");
+   $('title').text('#' + current_channel + ' - IRClogger 2.0');
 
    var next_startkey;
    var previousDate = 0;
@@ -73,24 +74,24 @@ jQuery(function ($) {
 
 
    function showChannelList() {
-      $.getJSON("ddoc/_view/channel", {
+      $Couch.view("channel", {
          group: true,
          group_level: 1
-      }, function (data) {
-            var div = $('<div></div>');
-            var list = $('<ul class="channels"></ul>');
-            for (var k = 0; k < data.rows.length; k++) {
-               var key = data.rows[k].key[0];
-               var value = data.rows[k].value;
-               list.append('<li><a title="' + value + '" href="?channel=' + key + '">' + key + '</a></li>');
-            }
-            div.append(list);
-            div.dialog({
-               modal: true,
-               height: 240,
-               title: "Channels logged"
-            });
+      }).done( function (data) {
+         var div = $('<div></div>');
+         var list = $('<ul class="channels"></ul>');
+         for (var k = 0; k < data.rows.length; k++) {
+            var key = data.rows[k].key[0];
+            var value = data.rows[k].value;
+            list.append('<li><a title="' + value + '" href="?channel=' + key + '">' + key + '</a></li>');
          }
+         div.append(list);
+         div.dialog({
+            modal: true,
+            height: 240,
+            title: "Channels logged"
+         });
+      }
       );
    }
 
@@ -114,69 +115,57 @@ jQuery(function ($) {
       }
       table.append(html);
       var id = window.location.hash.substr(1);
-      var el = document.getElementById(id);
-      if (el) {
-         el.focus();
-         el.scrollIntoView(true);
+      if (id) {
+         var el = document.getElementById(id);
+         if (el) {
+            el.focus();
+            el.scrollIntoView(true);
+         }
       }
    }
 
 
    function startUpdates(last_update_seq, callback) {
-      var options = {
-         since: last_update_seq,
-         channel: current_channel,
-         filter: "log/channel",
+      var query = {
          include_docs: "true",
-         cache: false,
-         async: true
+         filter: "log/channel",
+         channel: current_channel
       }
-      //var changes = $.getJSON("api/_changes", options, function(data) {});
-      //changes.onChange(callback);
+      $Couch.changes(last_update_seq, query, callback);
    }
 
 
    function loadMore() {
-      $.getJSON("ddoc/_view/channel", {
-         reduce: false,
+      $Couch.view("channel", {
+         startkey: next_startkey,
+         endkey: [current_channel, 0],
          include_docs: true,
          limit: 100,
-         descending: true,
-         cache: false,
-         async: true,
-         startkey: JSON.stringify(next_startkey),
-         endkey: JSON.stringify([current_channel, 0])
-      }, cb_GotLast100);
+         descending: true
+      }).done(cb_GotLast100);
    }
 
 
    var start = $Utils.getQueryVariable("date");
+
    if (start) {
       start = new Date(start).getTime() / 1000;
       var end = start + 24 * 60 * 60;
-      $.getJSON("ddoc/_view/channel", {
-            reduce: false,
-            include_docs: true,
-            descending: true,
-            cache: false,
-            async: false,
-            startkey: JSON.stringify([current_channel, end]),
-            endkey: JSON.stringify([current_channel, start])
-         }, function (data) {cb_GotHistory(data);}
-      );
+      $Couch.view("channel", {
+         startkey: [current_channel, end],
+         endkey: [current_channel, start],
+         include_docs: true,
+         descending: true
+      }).done(cb_GotHistory);
    } else {
       // get last 100 documents (and show 99)
-      $.getJSON("ddoc/_view/channel", {
-         startkey: JSON.stringify([current_channel, {}]),
-         endkey: JSON.stringify([current_channel, 0]),
-         limit: 100,
-         descending: true,
-         reduce: false,
+      $Couch.view("channel", {
+         startkey: [current_channel, {}],
+         endkey: [current_channel, 0],
          include_docs: true,
-         cache: false,
-         async: false,
-         update_seq: true
-      }, function (data) {
+         limit: 100,
+         descending: true
+      }).done(function (data) {
          cb_GotLast100(data);
          window.setTimeout(startUpdates, 1000, data.update_seq, cb_NewData);
       });
