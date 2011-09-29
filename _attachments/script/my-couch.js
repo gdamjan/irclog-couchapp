@@ -30,12 +30,12 @@ var $Couch = function ($) {
     }
 
     var get = function (id, opts) {
-        var _opts = $.extend({}, opts, global_settings);
+        var _opts = $.extend({}, global_settings, opts);
         return $.ajax("api/" + id, _opts);
     }
 
     var create = function (doc, id, opts) {
-        var _opts = $.extend({}, opts, global_settings);
+        var _opts = $.extend({}, global_settings, opts);
         if (id === undefined) {
             id = "api/";
             _opts.type = 'POST';
@@ -52,7 +52,7 @@ var $Couch = function ($) {
     }
 
     var view = function (id, query, opts) {
-        var _opts = $.extend({}, opts, global_settings);
+        var _opts = $.extend({}, global_settings, opts);
         var _query = {
            update_seq: true,
            stale: "update_after",
@@ -61,24 +61,24 @@ var $Couch = function ($) {
 
         // stringify if needed
         function assure_string(obj, attr) {
-            if (obj[attr] && typeof obj[attr] !== "string")
+            if (obj && obj[attr] && typeof obj[attr] !== "string")
                 obj[attr] = JSON.stringify(obj[attr]);
         }
         assure_string(query, "key");
         assure_string(query, "startkey");
         assure_string(query, "endkey");
 
-        _opts.data = $.extend({}, query, _query);
+        _opts.data = $.extend({}, _query, query);
         return $.ajax("ddoc/_view/" + id, _opts);
     }
 
     var changes = function (since, query, callback, opts) {
-        var _opts = $.extend({}, opts, global_settings);
+        var _opts = $.extend({}, global_settings, opts);
         var _query = {
            feed: "longpoll",
            heartbeat: 10000
         }
-        _opts.data = $.extend({}, query, _query);
+        _opts.data = $.extend({}, _query, query);
 
         function fireaway (since, callback, opts) {
            opts.data.since = since;
