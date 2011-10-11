@@ -98,7 +98,7 @@ var $Couch = function ($) {
               closure.trigger("on_change", [data]);
               closure._last_seq = data.last_seq;
               if (closure._stopped !== true) {
-                 window.setTimeout(changes_loop, 0, data.last_seq, _options);
+                 window.setTimeout(changes_loop, 50, data.last_seq, _options);
               }
            })
 
@@ -106,7 +106,7 @@ var $Couch = function ($) {
               // restart on error (maybe even do a real backoff?)
               closure.trigger("on_error", [ev]);
               if (closure._stopped !== true) {
-                 window.setTimeout(changes_loop, 1000, _options);
+                 window.setTimeout(changes_loop, 2000, _last_seq, _options);
               }
            })
         }
