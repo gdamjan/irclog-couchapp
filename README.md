@@ -40,15 +40,6 @@ Read the documentation about [CouchDB Virtual Hosts](http://wiki.apache.org/couc
 further info.
 
 
-## Todo
-
-* archive browser - calendar, dates
-* full-text search
-* tag cloud
-* compact lines, if same sender AND timestamp diff < 10 secs AND number of words < 2
-* algorithmic persistent nick colorizer
-* histogram of activity
-
 ## License
 
 Apache 2.0
