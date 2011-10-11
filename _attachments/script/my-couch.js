@@ -55,7 +55,6 @@ var $Couch = function ($) {
         var _opts = $.extend({}, global_settings, opts);
         var _query = {
            update_seq: true,
-           stale: "update_after",
            reduce: false
         }
 
@@ -81,7 +80,7 @@ var $Couch = function ($) {
         var start_opts = $.extend({}, global_settings, opts);
         var _query = {
            feed: "longpoll",
-           heartbeat: 10000,
+           heartbeat: 30000,
         }
         start_opts.data = $.extend({}, _query, query);
 
