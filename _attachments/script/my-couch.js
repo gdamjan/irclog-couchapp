@@ -72,28 +72,67 @@ var $Couch = function ($) {
         return $.ajax("ddoc/_view/" + id, _opts);
     }
 
-    var changes = function (since, query, callback, opts) {
-        var _opts = $.extend({}, global_settings, opts);
+    // creates a `changes` object whis has 4 methods:
+    //   start()
+    //   stop()
+    //   on_change(callback)
+    //   on_error(callback)
+    var changes = function (last_seq, query, opts) {
+        var start_opts = $.extend({}, global_settings, opts);
         var _query = {
            feed: "longpoll",
-           heartbeat: 10000
+           heartbeat: 10000,
         }
-        _opts.data = $.extend({}, _query, query);
+        start_opts.data = $.extend({}, _query, query);
 
-        function fireaway (since, callback, opts) {
-           opts.data.since = since;
-           $.when( $.ajax("api/_changes", opts) ).then(
-              function (data) {
-                  callback(data);
-                  window.setTimeout(fireaway, 0, data.last_seq, callback, opts);
-              },
-              function (data) {
-                  // restart on error (maybe real backoff?)
-                  window.setTimeout(fireaway, 1000, since, callback, opts);
+        var closure = jQuery({});
+        closure._stopped = true;
+        closure._last_seq = last_seq;
+        closure._jqXHR = null;
+
+        function changes_loop(_last_seq, _options) {
+           _options.data.since = _last_seq;
+           var jqXHR = $.ajax("api/_changes", _options);
+           closure._jqXHR = jqXHR;
+
+           jqXHR.done(function (data) {
+              closure.trigger("on_change", [data]);
+              closure._last_seq = data.last_seq;
+              if (closure._stopped !== true) {
+                 window.setTimeout(changes_loop, 0, data.last_seq, _options);
               }
-           )
+           })
+
+           jqXHR.fail(function (ev) {
+              // restart on error (maybe even do a real backoff?)
+              closure.trigger("on_error", [ev]);
+              if (closure._stopped !== true) {
+                 window.setTimeout(changes_loop, 1000, _options);
+              }
+           })
         }
-        fireaway (since, callback, _opts);
+
+        var emiter = {};
+        emiter.start = function() {
+           if (closure._stopped) {
+              closure._stopped = false;
+              changes_loop(closure._last_seq, start_opts);
+           }
+        }
+        emiter.stop = function() {
+           closure._stopped = true;
+           if (closure._jqXHR) {
+              closure._jqXHR.abort();
+           }
+        };
+        emiter.on_change = function(callback) {
+           closure.bind("on_change", function (ev, data) {callback(data)})
+        }
+        emiter.on_error = function(callback) {
+           closure.bind("on_error", function (ev, error) {callback(error)})
+        }
+
+        return emiter;
     }
 
 

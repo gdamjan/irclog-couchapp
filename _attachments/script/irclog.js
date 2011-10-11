@@ -125,13 +125,16 @@ jQuery(function ($) {
    }
 
 
-   function startUpdates(last_update_seq, callback) {
+   function startUpdates(last_update_seq) {
       var query = {
          include_docs: "true",
          filter: "log/channel",
          channel: current_channel
       }
-      $Couch.changes(last_update_seq, query, callback);
+      var ch = $Couch.changes(last_update_seq, query);
+      ch.on_change(cb_NewData);
+      ch.on_error(console.log);
+      ch.start();
    }
 
 
@@ -167,7 +170,8 @@ jQuery(function ($) {
          descending: true
       }).done(function (data) {
          cb_GotLast100(data);
-         window.setTimeout(startUpdates, 1000, data.update_seq, cb_NewData);
+         // a trick to stop the loader spinning
+         window.setTimeout(startUpdates, 1000, data.update_seq);
       });
    }
 
