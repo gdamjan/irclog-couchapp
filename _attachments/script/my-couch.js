@@ -35,11 +35,13 @@ var $Couch = function ($) {
     }
 
     var create = function (doc, id, opts) {
-        var _opts = $.extend({}, global_settings, opts);
+        var _opts = $.extend({type:'POST'}, global_settings, opts);
+        // if id is undefined, default is POST to the database
+        // otherwise if the id doesn't have a slash it's a PUT to the ./api/<id>
+        // otherwise it's a POST to the id directly (usefull for update functions)
         if (id === undefined) {
             id = "api/";
-            _opts.type = 'POST';
-        } else {
+        } else if (id.indexOf('/') === -1) {
             id = "api/" + id;
             _opts.type = 'PUT';
         }
@@ -71,64 +73,97 @@ var $Couch = function ($) {
         return $.ajax("ddoc/_view/" + id, _opts);
     }
 
-    // creates a `changes` object whis has 4 methods:
-    //   start()
-    //   stop()
-    //   on_change(callback)
-    //   on_error(callback)
+    /*
+     * creates a `changes` object whis has 4 methods:
+     *   start()
+     *   stop()
+     *   on_change(callback)
+     *   on_error(callback)
+     *
+     * it'll stay subscribed to the _changes feed forever, and reconnect
+     * on errors (using an exponentional backoff). also a watchdog is started
+     * that will make sure the TCP/IP connection didn't get stuck.
+     */
     var changes = function (last_seq, query, opts) {
         var start_opts = $.extend({}, global_settings, opts);
         var _query = {
            feed: "longpoll",
-           heartbeat: 30000,
+           heartbeat: 30000
         }
         start_opts.data = $.extend({}, _query, query);
 
-        var closure = jQuery({});
-        closure._stopped = true;
-        closure._last_seq = last_seq;
-        closure._jqXHR = null;
+        var state = {};
+        state.event = jQuery({});
+        state.stopped = true;
+        state.last_seq = last_seq;
+        state.jqXHR = null;
+        state.fail_count = 0;
+        state.watchdogID = null;
+
+        function watchdog(interval) {
+           var w = $.ajax("api/", {timeout: 5000})
+           w.done(function (msg, textStatus) {
+              state.watchdogID = window.setTimeout(watchdog, interval, interval)
+           });
+           w.fail(function (_, textStatus) {
+              console.log("Watchdog failed with: ", textStatus);
+              if (state.watchdogID !== null)
+                 window.clearTimeout(state.watchdogID);
+              state.watchdogID = null;
+              state.jqXHR.abort();
+           });
+        }
 
         function changes_loop(_last_seq, _options) {
            _options.data.since = _last_seq;
            var jqXHR = $.ajax("api/_changes", _options);
-           closure._jqXHR = jqXHR;
+           state.jqXHR = jqXHR;
 
            jqXHR.done(function (data) {
-              closure.trigger("on_change", [data]);
-              closure._last_seq = data.last_seq;
-              if (closure._stopped !== true) {
+              state.event.trigger("on_change", [data]);
+              state.last_seq = data.last_seq;
+              state.fail_count = 0;
+              if (state.watchdogID !== null)
+                 window.clearTimeout(state.watchdogID);
+              state.watchdogID = null;
+              if (state.stopped !== true) {
                  window.setTimeout(changes_loop, 50, data.last_seq, _options);
               }
            })
 
            jqXHR.fail(function (ev) {
-              // restart on error (maybe even do a real backoff?)
-              closure.trigger("on_error", [ev]);
-              if (closure._stopped !== true) {
-                 window.setTimeout(changes_loop, 2000, _last_seq, _options);
+              // restart on error, binary exponential truncated backoff
+              state.event.trigger("on_error", [ev]);
+              if (state.stopped !== true) {
+                 state.fail_count<5 ? state.fail_count++ : state.fail_count;
+                 var backoff = (2<<state.fail_count) * 1500;
+                 window.setTimeout(changes_loop, backoff, _last_seq, _options);
               }
            })
+
+           watchdog(_options.data.heartbeat * 2);
+           return jqXHR;
         }
 
         var emiter = {};
         emiter.start = function() {
-           if (closure._stopped) {
-              closure._stopped = false;
-              changes_loop(closure._last_seq, start_opts);
+           if (state.stopped) {
+              state.stopped = false;
+              return changes_loop(state.last_seq, start_opts);
            }
+           return state.jqXHR;
         }
         emiter.stop = function() {
-           closure._stopped = true;
-           if (closure._jqXHR) {
-              closure._jqXHR.abort();
+           state.stopped = true;
+           if (state.jqXHR) {
+              state.jqXHR.abort();
            }
         };
         emiter.on_change = function(callback) {
-           closure.bind("on_change", function (ev, data) {callback(data)})
+           state.event.bind("on_change", function (ev, data) {callback(data)})
         }
         emiter.on_error = function(callback) {
-           closure.bind("on_error", function (ev, error) {callback(error)})
+           state.event.bind("on_error", function (ev, error) {callback(error)})
         }
 
         return emiter;
