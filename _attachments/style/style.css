@@ -1,5 +1,14 @@
-.timestamp { font-family: monospace; color: #808080; font-size: 80%;  padding-top: 8px; }
-.timestamp a { color: #808080; text-decoration: none; }
+.timestamp {
+  font-family: monospace;
+  font-size: 80%;
+  color: #808080;
+  padding: 6px 0 0 0;
+  vertical-align: top;
+}
+.timestamp a {
+  color: #808080;
+  text-decoration: none;
+}
 
 .date {
   color: #a0a0a0;
@@ -15,12 +24,16 @@
   color: #000000;
   font-size: 70%;
   padding: 1px 2px;
-  margin-right: 4px;
+  margin: 0 4px 0 2px;
 }
 
 .message {
   font-size: 100%;
   margin-left: 3.0em;
+  padding: 0;
+}
+.message span {
+  vertical-align: baseline;
 }
 
 .channels {
@@ -40,34 +53,90 @@
   text-decoration: none;
 }
 
-#morehistory { text-align: center; text-decoration: none; color:#808080; cursor:pointer }
+.pagination { text-align: center; text-decoration: none; color:#808080; cursor:pointer }
 
-#pi {
+#settings {
   position: fixed;
-  font-size: 140%;
-  font-family: serif;
-  width: auto;
-  height: auto;
   bottom: 0px;
   right: 0px;
-  color:#808080;
-  padding: 1px 3px;
-/*
-  border: 1px solid;
-  background-color: #bff;
-*/
-  background-position:top left;
-  background-repeat:repeat-y;
-  cursor:pointer;
+  cursor: pointer;
+  opacity: 0.4;
+  height: 32px;
+  z-index: 10;
+}
+#settings:hover {
+  opacity:1;
+}
+#settings:hover>img {
+  display: none;
+}
+#settings ul {
+  float: left;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  background-color: #eee;
+  z-index: 9;
+  display: none;
+}
+#settings:hover>ul {
+  display: block;
+  -moz-animation-duration: 1s;
+  -moz-animation-name: slidein;
+}
+@-moz-keyframes slidein {
+    from {
+      bottom: -30px;
+      height: 300%;
+    }
+
+    to {
+      bottom:0;
+      height: 100%;
+    }
+}
+#settings>ul li {
+  display: block;
+  float: left;
+}
+#settings>ul li a {
+  color: #000;
+  display: block;
+  float: none;
+  line-height: 12px;
+  padding: 10px 10px 12px;
+  text-decoration: none;
+}
+#settings>ul li a:hover {
+  color: #ffffff;
+  background-color: #222;
+}
+
+.container {
+  margin: 6px;
 }
 
 a:link.tag, a:visited.tag { border: 1px dashed #ccc; background: #ccc; text-decoration: none; }
 a:hover.tag { border: 1px solid #eee; }
 
-footer { border-top: 1px dashed #CCCCCC; margin-top: 1em; }
-footer a { text-decoration: none; color: #808080; }
+h1 {
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+  color: #444444;
+}
 
-body {
+footer {
+  border-top: 1px dashed #aaaaaa;
+  margin-top: 1em;
+  background-color: #eeeeee;
+}
+footer div { margin: 8px 6px 0; padding-bottom: 0.4em;}
+footer a { text-decoration: none; color: #555555; }
+footer a:hover { text-decoration: underline; color: #152C5C }
+
+html, body {
   font-family: sans-serif;
   font-size: 100%;
+  margin: 0;
+  padding: 0;
 }
