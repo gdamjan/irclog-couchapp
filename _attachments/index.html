@@ -5,11 +5,9 @@
   <title>IRClogger 2.0</title>
 
   <script type="text/javascript">
-     // make sure we are on a pathname that ends with /
-     // so that relative urls go above the design-doc
+  /*    redirect _rewrite to _rewrite/                               */
+  /*    to  normalize access to relative urls through the rewriter   */
      if (/\/_rewrite$/.test(window.location.pathname))
-        // redirect _rewrite to _rewrite/
-        // to  normalize access to relative urls through the rewriter
         window.location.pathname = window.location.pathname + "/";
   </script>
 
