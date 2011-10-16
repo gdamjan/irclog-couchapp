@@ -343,4 +343,10 @@ var Mustache = function() {
     return Mustache.escape(text);
   };
 
+  $.fn.mustache = function (data, partial, stream) {
+    if (Mustache && data) {
+        return $(Mustache.to_html(this.html(), data, partial, stream));
+    }
+  };
+
 })(jQuery);
