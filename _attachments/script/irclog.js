@@ -8,7 +8,7 @@ jQuery(function ($) {
 
    $('title').text('#' + current_channel + ' - IRClogger 2.0');
 
-   var pagination = {begin: [current_channel, {}], end: [current_channel, 0] };
+   var pagination = {begin: [current_channel, {}], end: [current_channel, 0]};
 
    var focused = false;
    $(window).focus(function () { focused = true; });
@@ -63,8 +63,8 @@ jQuery(function ($) {
          var color = $Colorizer(doc.sender);
          var datetime = timestampToDatetime(doc.timestamp);
          var permalink = '?channel=' + doc.channel +
-                   ';date=' + datetime.date + '#' + datetime.time;
-         var anchor = datetime.date + '-' + datetime.time;  // FIXME ???
+                   ';date=' + datetime.date + 'T' + datetime.time;
+         var anchor = datetime.date + 'T' + datetime.time;
          var msg = fmtMessage(doc, color);
          var row = makeTableRow(msg, permalink, anchor, datetime);
          var body = getTableSegment(datetime.date);
@@ -100,21 +100,6 @@ jQuery(function ($) {
    }
 
 
-   function loadNextPage() {
-      var v = $Couch.view("channel", {
-         startkey: pagination.end,
-         endkey: [current_channel, {}],
-         include_docs: true,
-         limit: 100,
-         descending: false
-      }).done(function (data) {
-         pagination.end = data.rows[data.rows.length - 1].key;
-         displayRows(data.rows);
-      });
-      return v;
-   }
-
-
    function loadPrevPage() {
       var v = $Couch.view("channel", {
          startkey: pagination.begin,
@@ -123,7 +108,9 @@ jQuery(function ($) {
          limit: 100,
          descending: true
       }).done(function (data) {
-         pagination.begin = data.rows[data.rows.length - 1].key;
+         var last = data.rows.slice(-1)[0];
+         pagination.begin = last.key;
+         data.rows.shift();
          displayRows(data.rows, true);
       });
       return v;
@@ -139,12 +126,32 @@ jQuery(function ($) {
          include_docs: true,
          descending: false
       }).done(function (data) {
-         pagination.begin = data.rows[0].key;
-         pagination.end = data.rows[data.rows.length - 1].key;
+         var last = data.rows.slice(-1)[0];
+         var first = data.rows[0];
+         pagination.begin = first.key;
+         pagination.end = last.key;
          displayRows(data.rows);
       });
       return v;
    }
+
+
+   function loadNextPage() {
+      var v = $Couch.view("channel", {
+         startkey: pagination.end,
+         endkey: [current_channel, {}],
+         include_docs: true,
+         limit: 100,
+         descending: false
+      }).done(function (data) {
+         var last = data.rows.slice(-1)[0];
+         pagination.end = last.key;
+         data.rows.shift();
+         displayRows(data.rows);
+      });
+      return v;
+   }
+
 
    // callback, called when new data arrives from the _changes notification feed
    function on_update(data) {
@@ -180,6 +187,8 @@ jQuery(function ($) {
 
    var date = $Utils.getQueryVariable("date");
    if (date) {
+      if (date.length <= 10)
+         date = date + 'T00:00:00';
       loadFullDay(date);
    } else {
       $('#next_page').hide();
