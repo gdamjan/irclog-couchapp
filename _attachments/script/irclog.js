@@ -1,7 +1,11 @@
 jQuery(function ($) {
 
    /* initialization */
-   var current_channel = $Utils.getQueryVariable("channel", "lugola");
+   var current_channel;
+   current_channel = $Utils.getCookie('irclog_channel') || "lugola";
+   current_channel = $Utils.getQueryVariable("channel", current_channel);
+   $Utils.setCookie('irclog_channel', current_channel, 3000);
+
    $('title').text('#' + current_channel + ' - IRClogger 2.0');
 
    var pagination = {begin: [current_channel, {}], end: [current_channel, 0] };
