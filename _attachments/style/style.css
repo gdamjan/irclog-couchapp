@@ -66,12 +66,12 @@
 }
 #settings:hover {
   opacity:1;
+  height: auto;
 }
 #settings:hover>img {
   display: none;
 }
 #settings ul {
-  float: left;
   left: 0;
   margin: 0;
   padding: 0;
@@ -87,18 +87,15 @@
 }
 @-moz-keyframes slidein {
     from {
-      bottom: -30px;
-      height: 300%;
+        opacity: 0.4;
     }
 
     to {
-      bottom:0;
-      height: 100%;
+        opacity: 1;
     }
 }
 #settings>ul li {
   display: block;
-  float: left;
 }
 #settings>ul li a {
   color: #000;
