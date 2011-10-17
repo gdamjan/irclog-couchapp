@@ -60,7 +60,7 @@ jQuery(function ($) {
       var i, len = rows.length;
       for (i=0; i<len; i++) {
          var doc = rows[i].doc;
-         var color = $Colorizer(doc.sender);
+         var color = $Colorizer(doc.sender.toLowerCase());
          var datetime = timestampToDatetime(doc.timestamp);
          var permalink = '?channel=' + doc.channel +
                    ';date=' + datetime.date + 'T' + datetime.time;
