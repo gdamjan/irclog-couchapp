@@ -100,7 +100,7 @@ jQuery(function ($) {
    }
 
 
-   function loadPrevPage() {
+   function loadPrevPage(initial) {
       var v = $Couch.view("channel", {
          startkey: pagination.begin,
          endkey: [current_channel, 0],
@@ -110,7 +110,9 @@ jQuery(function ($) {
       }).done(function (data) {
          var last = data.rows.slice(-1)[0];
          pagination.begin = last.key;
-         data.rows.shift();
+         if(initial!==true) {
+            data.rows.shift();
+         }
          displayRows(data.rows, true);
       });
       return v;
@@ -192,7 +194,7 @@ jQuery(function ($) {
       loadFullDay(date);
    } else {
       $('#next_page').hide();
-      loadPrevPage().done(function (data) {
+      loadPrevPage(true).done(function (data) {
          // setTimeout trick is to stop the browser loader spinning
          window.setTimeout(startUpdates, 1000, data.update_seq);
       });
