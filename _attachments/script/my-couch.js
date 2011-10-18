@@ -120,7 +120,7 @@ var $Couch = function ($) {
            state.jqXHR = jqXHR;
 
            jqXHR.done(function (data) {
-              state.event.trigger("on_change", [data]);
+              state.event.triggerHandler("on_change", [data]);
               state.last_seq = data.last_seq;
               state.fail_count = 0;
               if (state.watchdogID !== null)
@@ -133,7 +133,7 @@ var $Couch = function ($) {
 
            jqXHR.fail(function (_, textStatus, errorThrown) {
               // restart on error, binary exponential truncated backoff
-              state.event.trigger("on_error", [textStatus, errorThrown]);
+              state.event.triggerHandler("on_error", [textStatus, errorThrown]);
               if (state.stopped !== true) {
                  state.fail_count<5 ? state.fail_count++ : state.fail_count;
                  var backoff = (2<<state.fail_count) * 1500;
