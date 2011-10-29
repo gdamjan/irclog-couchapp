@@ -14,8 +14,17 @@ jQuery(function ($) {
    $(window).focus(function () { focused = true; });
    $(window).blur(function () { focused = false; });
 
-   $('#prev_page').click(loadPrevPage);
-   $('#next_page').click(loadNextPage);
+   var paginationClick = function(ev) {
+      var self = $(this);
+      self.unbind('click');
+      var loadPageFun = ev.data;
+      loadPageFun().always(function() {
+         self.click(loadPageFun, paginationClick);
+      });
+   }
+   $('#prev_page').click(loadPrevPage, paginationClick);
+   $('#next_page').click(loadNextPage, paginationClick);
+
    $('#settings a').click(function() {
       TINY.box.show({url:this.href});
       return false;
