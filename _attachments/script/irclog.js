@@ -146,9 +146,15 @@ jQuery(function ($) {
          limit: 100,
          descending: false
       }).done(function (data) {
-         var last = data.rows.slice(-1)[0];
-         pagination.end = last.key;
-         data.rows.shift();
+         if (data.rows.length < 100) {
+            $('#next_page').hide();
+            pagination.end = [current_channel, 0];
+            startUpdates(data.update_seq);
+         } else {
+            var last = data.rows.slice(-1)[0];
+            pagination.end = last.key;
+            data.rows.shift();
+         }
          displayRows(data.rows);
       });
       return v;
