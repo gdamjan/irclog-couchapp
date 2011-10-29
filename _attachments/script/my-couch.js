@@ -98,34 +98,18 @@ var $Couch = function ($) {
         state.last_seq = last_seq;
         state.jqXHR = null;
         state.fail_count = 0;
-        state.watchdogID = null;
-
-        function watchdog(interval) {
-           var w = $.ajax("api/", {timeout: 5000})
-           w.done(function (msg, textStatus) {
-              state.watchdogID = window.setTimeout(watchdog, interval, interval)
-           });
-           w.fail(function (_, textStatus) {
-              console.log("Watchdog failed with: ", textStatus);
-              if (state.watchdogID !== null)
-                 window.clearTimeout(state.watchdogID);
-              state.watchdogID = null;
-              state.jqXHR.abort();
-           });
-        }
 
         function changes_loop(_last_seq, _options) {
            _options.data.since = _last_seq;
            var jqXHR = $.ajax("api/_changes", _options);
            state.jqXHR = jqXHR;
 
+           var watchdogID = window.setTimeout(jqXHR.abort, start_opts.data.heartbeat * 10);
            jqXHR.done(function (data) {
               state.event.triggerHandler("on_change", [data]);
               state.last_seq = data.last_seq;
               state.fail_count = 0;
-              if (state.watchdogID !== null)
-                 window.clearTimeout(state.watchdogID);
-              state.watchdogID = null;
+              window.clearTimeout(watchdogID);
               if (state.stopped !== true) {
                  window.setTimeout(changes_loop, 50, data.last_seq, _options);
               }
@@ -141,7 +125,6 @@ var $Couch = function ($) {
               }
            })
 
-           watchdog(_options.data.heartbeat * 2);
            return jqXHR;
         }
 
