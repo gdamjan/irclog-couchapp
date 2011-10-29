@@ -45,8 +45,8 @@ jQuery(function ($) {
    }
 
    function fmtMessage(doc, color) {
-      var out = '';
-      out += '<span class="nickname" style="background-color:' + color + '">' + doc.sender + '</span>';
+      var out, msg;
+      out = '<span class="nickname" style="background-color:' + color + '">' + doc.sender + '</span>';
       msg = $Utils.escapeHTML(doc.message);
       msg = $Utils.autoLink(msg);
       msg = msg.replace(/^\x01ACTION (.*)\x01/g, '<span class="nickname" style="background-color:' + color + '">$1</span>');
