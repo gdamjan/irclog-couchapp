@@ -171,7 +171,7 @@ jQuery(function ($) {
 
 
    // callback, called when new data arrives from the _changes notification feed
-   function on_update(data) {
+   function do_changes(data) {
       displayRows(data.results);
       if (!focused) {
          $TitleAlert.start();
@@ -191,7 +191,7 @@ jQuery(function ($) {
          channel: current_channel
       }
       var ch = $Couch.changes(last_update_seq, query);
-      ch.on_change(on_update);
+      ch.on_changes(do_changes);
       ch.on_error(function (err, exc) {
          if (console && console.log)
             console.log(err, exc);

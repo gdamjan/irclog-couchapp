@@ -143,7 +143,7 @@ var $Couch = function ($) {
               state.jqXHR.abort();
            }
         };
-        that.on_change = state.on_data.add;
+        that.on_changes = state.on_data.add;
         that.on_error = state.on_error.add;
 
         return that;
