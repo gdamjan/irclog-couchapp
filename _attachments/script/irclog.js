@@ -117,10 +117,16 @@ jQuery(function ($) {
          limit: 100,
          descending: true
       }).done(function (data) {
-         var last = data.rows.slice(-1)[0];
-         pagination.begin = last.key;
-         if(initial!==true) {
-            data.rows.shift();
+         if (data.rows.length < 100) {
+            // it's the begining of history
+            $('#prev_page').hide();
+            pagination.begin = [current_channel, {}];
+         } else {
+            var last = data.rows.slice(-1)[0];
+            pagination.begin = last.key;
+            if(initial!==true) {
+               data.rows.shift();
+            }
          }
          displayRows(data.rows, true);
       });
@@ -156,6 +162,8 @@ jQuery(function ($) {
          descending: false
       }).done(function (data) {
          if (data.rows.length < 100) {
+            // it's the end of history, i.e. the present
+            // so start the realtime updates
             $('#next_page').hide();
             pagination.end = [current_channel, 0];
             startUpdates(data.update_seq);
