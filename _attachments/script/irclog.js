@@ -76,11 +76,11 @@ jQuery(function ($) {
          var anchor = datetime.date + 'T' + datetime.time;
          var msg = fmtMessage(doc, color);
          var row = makeTableRow(msg, permalink, anchor, datetime);
-         var body = getTableSegment(datetime.date);
+         var tbody = getTableSegment(datetime.date);
          if (descending) {
-            $(body.children()[0]).after(row);
+            $(tbody.children()[0]).after(row);
          } else {
-            body.append(row);
+            tbody.append(row);
          }
       }
    }
