@@ -7,7 +7,7 @@
  * from a couchdb vhost, or from the design doc rewriter. It doesn't care what
  * your database is named either, or if it's proxied behind a path.
  *
- * Depends on jQuery>1.5 and JSON.stringify
+ * Depends on jQuery>=1.7 and JSON.stringify
  *
  * The api is a singleton object, a thin wrapper around jQuery $.ajax()
  *
@@ -93,7 +93,8 @@ var $Couch = function ($) {
         start_opts.data = $.extend({}, _query, query);
 
         var state = {};
-        state.event = jQuery({});
+        state.on_data = $.Callbacks();
+        state.on_error = $.Callbacks();
         state.stopped = true;
         state.last_seq = last_seq;
         state.jqXHR = null;
@@ -106,7 +107,7 @@ var $Couch = function ($) {
 
            var watchdogID = window.setTimeout(jqXHR.abort, start_opts.data.heartbeat * 10);
            jqXHR.done(function (data) {
-              state.event.triggerHandler("on_change", [data]);
+              state.on_data.fire(data);
               state.last_seq = data.last_seq;
               state.fail_count = 0;
               window.clearTimeout(watchdogID);
@@ -117,7 +118,7 @@ var $Couch = function ($) {
 
            jqXHR.fail(function (_, textStatus, errorThrown) {
               // restart on error, binary exponential truncated backoff
-              state.event.triggerHandler("on_error", [textStatus, errorThrown]);
+              state.on_error.fire(textStatus, errorThrown);
               if (state.stopped !== true) {
                  state.fail_count<5 ? state.fail_count++ : state.fail_count;
                  var backoff = (2<<state.fail_count) * 1500;
@@ -142,16 +143,8 @@ var $Couch = function ($) {
               state.jqXHR.abort();
            }
         };
-        emiter.on_change = function(callback) {
-           state.event.bind("on_change", function (_ev, data) {
-              callback(data)
-           })
-        }
-        emiter.on_error = function(callback) {
-           state.event.bind("on_error", function (_ev, textStatus, errorThrown) {
-              callback(textStatus, errorThrown)
-           })
-        }
+        emiter.on_change = state.on_data.add;
+        emiter.on_error = state.on_error.add;
 
         return emiter;
     }
