@@ -188,7 +188,12 @@ jQuery(function ($) {
          // view is at the bottom of the document, scroll down to the end
          window.scroll(window.scrollX, document.body.clientHeight);
       } else {
-         $.noticeAdd({text: fmtMessage(doc)});
+         // notify just the last 5 (only happens on huge changes)
+         var noticies = data.results.slice(-5);
+         for (var i=0; i<noticies.length; i++) {
+            var doc = noticies[i].doc;
+            $.noticeAdd({text: "<b>" + doc.sender + ": </b>" + doc.message});
+         }
       }
    }
 
