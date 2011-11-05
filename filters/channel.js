@@ -10,7 +10,9 @@
  */
 
 function(doc, req) {
-  if(doc.channel == req.query.channel && !doc._deleted ) {
+  if (!req.query.channel)
+    return false;
+  if(!doc._deleted && doc.channel && doc.channel == req.query.channel) {
     return true;
   }
   return false;
