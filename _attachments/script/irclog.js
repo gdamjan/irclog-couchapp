@@ -6,7 +6,7 @@ jQuery(function ($) {
    current_channel = $Utils.getQueryVariable("channel", current_channel);
    $Utils.setCookie('irclog_channel', current_channel, 3000);
 
-   $('title').text('#' + current_channel + ' - IRClogger 2.0');
+   $('title').text('logs for #' + current_channel);
 
    var pagination = {begin: [current_channel, {}], end: [current_channel, 0]};
 
