@@ -129,24 +129,24 @@ var $Couch = function ($) {
            return jqXHR;
         }
 
-        var emiter = {};
-        emiter.start = function() {
+        var that = {};
+        that.start = function() {
            if (state.stopped) {
               state.stopped = false;
               return changes_loop(state.last_seq, start_opts);
            }
            return state.jqXHR;
         }
-        emiter.stop = function() {
+        that.stop = function() {
            state.stopped = true;
            if (state.jqXHR) {
               state.jqXHR.abort();
            }
         };
-        emiter.on_change = state.on_data.add;
-        emiter.on_error = state.on_error.add;
+        that.on_change = state.on_data.add;
+        that.on_error = state.on_error.add;
 
-        return emiter;
+        return that;
     }
 
 
