@@ -3,7 +3,7 @@
  *
  */
 
-function(doc, req) {
+function tag(doc, req) {
   if (!req.query.tag)
     return false;
   var tag = req.query.tag + '//';
@@ -11,4 +11,4 @@ function(doc, req) {
     return true;
   }
   return false;
-}
+}; tag

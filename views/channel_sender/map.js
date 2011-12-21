@@ -4,7 +4,7 @@
  * timestamp.
  */
 
-function(doc) {
+function map(doc) {
   if (doc.channel && doc.sender && doc.timestamp)
     emit([doc.channel.toLowerCase(), doc.sender.toLowerCase(), doc.timestamp], null);
-}
+}; map

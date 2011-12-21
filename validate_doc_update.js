@@ -8,9 +8,9 @@
  * http://wiki.apache.org/couchdb/Document_Update_Validation
  */
 
-function(newDoc, oldDoc, userCtx) {
+function validate_doc_update(newDoc, oldDoc, userCtx) {
   if (userCtx.name == "irclog" || userCtx.roles.indexOf("_admin") !== -1) {
     return true;
   }
   throw({"forbidden": "You may not update documents"});
-}
+}; validate_doc_update

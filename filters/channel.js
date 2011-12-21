@@ -9,11 +9,11 @@
  * documents shouldn't happen anyway.
  */
 
-function(doc, req) {
+function channel(doc, req) {
   if (!req.query.channel)
     return false;
   if(!doc._deleted && doc.channel && doc.channel == req.query.channel) {
     return true;
   }
   return false;
-}
+}; channel

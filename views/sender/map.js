@@ -4,7 +4,7 @@
  * by the timestamp. Usefull for some statistics.
  */
 
-function(doc) {
+function map(doc) {
   if (doc.sender && doc.timestamp)
     emit([doc.sender.toLowerCase(), doc.timestamp], null);
-}
+}; map
