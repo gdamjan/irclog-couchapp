@@ -4,7 +4,7 @@ jQuery(function ($) {
    var current_channel;
    current_channel = $Utils.getCookie('irclog_channel') || "lugola";
    current_channel = $Utils.getQueryVariable("channel", current_channel);
-   secret_always_scroll_to_bottom = $Utils.getQueryVariable("auto-scroll", false);
+   var secret_always_scroll_to_bottom = $Utils.getQueryVariable("auto-scroll", false);
    $Utils.setCookie('irclog_channel', current_channel, 3000);
 
    $('title').text('logs for #' + current_channel);
