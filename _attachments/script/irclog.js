@@ -4,6 +4,7 @@ jQuery(function ($) {
    var current_channel;
    current_channel = $Utils.getCookie('irclog_channel') || "lugola";
    current_channel = $Utils.getQueryVariable("channel", current_channel);
+   secret_always_scroll_to_bottom = $Utils.getQueryVariable("auto-scroll", false);
    $Utils.setCookie('irclog_channel', current_channel, 3000);
 
    $('title').text('logs for #' + current_channel);
@@ -181,7 +182,9 @@ jQuery(function ($) {
    // callback, called when new data arrives from the _changes notification feed
    function do_changes(data) {
       displayRows(data.results);
-      if (!focused) {
+      if (secret_always_scroll_to_bottom) {
+         window.scroll(window.scrollX, document.body.clientHeight);
+      } else if (!focused) {
          $TitleAlert.start();
       } else if (document.documentElement.scrollHeight - 100 <
             document.documentElement.clientHeight + window.pageYOffset) {
