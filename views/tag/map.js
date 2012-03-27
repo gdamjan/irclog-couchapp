@@ -5,7 +5,6 @@
 
 function map(doc) {
    if (doc.message && doc.timestamp) {
-      var re = /(?:\s|^)(\S+?)\/\/(?:\s|$)/mg;
       var re = new RegExp("(?:\\s|^)(\\S+?)\\/\\/(?:\\s|$)", "mg");
       while ((result = re.exec(doc.message)) != null) {
          emit([result[1].toLowerCase(), doc.timestamp], null);
