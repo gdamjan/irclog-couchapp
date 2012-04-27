@@ -91,11 +91,32 @@ var $Utils = function(document, window, undefined) {
           }
        }
     },
+
     setCookie: function (c_name,value,exdays) {
        var exdate=new Date();
        exdate.setDate(exdate.getDate() + exdays);
        var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
        document.cookie=c_name + "=" + c_value;
+    },
+
+    isNumber: function (num) { return !isNaN(num); },
+
+    /**
+     * @param i positive integer
+     */
+    pad: function (i) {
+        return i < 10 ? '0' + i.toString() : i.toString()
+    },
+
+    /**
+     * @return string the local timezone
+     */
+    getLocalTimezone: function(date) {
+       var tz =  0 - new Date(date).getTimezoneOffset();
+       var tzH = exports.pad(Math.abs(Math.floor(tz / 60)));
+       var tzM = exports.pad(tz % 60);
+       var tzStr = (tz<0 ? '-':'+') + tzH + ':' + tzM;
+       return tzStr;
     }
   }
   return exports;

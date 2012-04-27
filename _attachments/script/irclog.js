@@ -35,13 +35,10 @@ jQuery(function ($) {
    var cachedTBodySegments = {};
 
    function timestampToDatetime(timestamp) {
-      function pad(x)
-         {return x < 10 ? '0' + x.toString() : x.toString()}
-
       var dt = new Date(timestamp * 1000);
       return {
-         date: dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()),
-         time: pad(dt.getHours()) + ':' + pad(dt.getMinutes()) + ':' + pad(dt.getSeconds())
+         date: dt.getFullYear() + '-' + $Utils.pad(dt.getMonth() + 1) + '-' + $Utils.pad(dt.getDate()),
+         time: $Utils.pad(dt.getHours()) + ':' + $Utils.pad(dt.getMinutes()) + ':' + $Utils.pad(dt.getSeconds())
       }
    }
 
@@ -134,13 +131,16 @@ jQuery(function ($) {
       return v;
    }
 
-
-   function loadFullDay(date) {
-      var start = new Date(date).getTime() / 1000;
-      var end = start + 24 * 60 * 60;
+   /**
+    * Given a timestamp will load 24h after it
+    * @param timestamp in seconds
+    * @return a jQuery Deferred object from the query request
+    */
+   function loadFullDay(timestamp) {
+      var until = timestamp + 24 * 60 * 60;
       var v = $Couch.view("channel", {
-         startkey: [current_channel, start],
-         endkey: [current_channel, end],
+         startkey: [current_channel, timestamp],
+         endkey: [current_channel, until],
          include_docs: true,
          descending: false
       }).done(function (data) {
@@ -220,9 +220,21 @@ jQuery(function ($) {
 
    var date = $Utils.getQueryVariable("date");
    if (date) {
-      if (date.length <= 10)
-         date = date + 'T00:00:00';
-      loadFullDay(date);
+      var tzStr = $Utils.getLocalTimezone(date);
+      console.log(tzStr);
+      if ($Utils.isNumber(date)) {
+         var timestamp = parseInt(date);
+      } else if (date.length <= 10) {
+         // it's only a date, append a null time
+         var timestamp = new Date(date + 'T00:00:00' + tzStr).getTime() / 1000;
+      } else if (/[zZ+]/.test(date)) {
+         // has timezone
+         var timestamp = new Date(date).getTime() / 1000;
+      } else {
+         // didn't have a timezone yet, append the local
+         var timestamp = new Date(date+tzStr).getTime() / 1000;
+      }
+      loadFullDay(timestamp);
    } else {
       $('#next_page').hide();
       loadPrevPage(true).done(function (data) {
