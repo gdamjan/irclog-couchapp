@@ -202,7 +202,7 @@ jQuery(function ($) {
 
    function startUpdates(last_update_seq) {
       var query = {
-         include_docs: "true",
+         include_docs: true,
          filter: "log/channel",
          channel: current_channel
       }
