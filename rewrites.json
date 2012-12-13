@@ -1,5 +1,7 @@
 [
  {"from": "/",         "to": "index.html"},
+ {"from": "/tag-cloud","to": "/_list/tags/tag", "query": {"group_level":"1"}},
+ {"from": "/channels", "to": "/_list/channels/channel", "query": {"group_level":"1"}},
  {"from": "/script",   "to": "/script"},
  {"from": "/script/*", "to": "/script/*"},
  {"from": "/style",    "to": "/style"},
