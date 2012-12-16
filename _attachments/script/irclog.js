@@ -1,19 +1,82 @@
 jQuery(function ($) {
 
    /* initialization */
+   /*
    var current_channel;
    current_channel = $Utils.getCookie('irclog_channel') || "lugola";
    current_channel = $Utils.getQueryVariable("channel", current_channel);
-   var secret_always_scroll_to_bottom = $Utils.getQueryVariable("auto-scroll", false);
    $Utils.setCookie('irclog_channel', current_channel, 3000);
+   */
+   // var date = $Utils.getQueryVariable("date");
 
-   $('title').text('logs for #' + current_channel);
-
-   var pagination = {begin: [current_channel, {}], end: [current_channel, 0]};
+   Path.root("#start");
+   Path.map("#start").to(function() {
+      $('#infobox').show();
+      var v = $Couch.view("channel", {group_level:1, reduce:true});
+      v.done(function(data) {
+         var i, len = data.rows.length;
+         for (i=0; i<len; i++) {
+            var title = data.rows[i].key[0];
+            var weight = data.rows[i].value;
+            var href = '#/' + title;
+            var link = $('<a>').attr('href', href).text(title);
+            $('#channels').append($('<li>').append(link));
+         }
+      });
+   });
 
    var focused = false;
    $(window).focus(function () { focused = true; });
    $(window).blur(function () { focused = false; });
+
+   var table = $("#irclog");
+   var cachedTBodySegments, changes_feed;
+   var secret_always_scroll_to_bottom = $Utils.getQueryVariable("auto-scroll", false);
+   var pagination = {};
+
+   function init_viewer(channel) {
+      $('#infobox').hide();
+      $('.pagination').show();
+      $('title').text('logs for #' + channel);
+      $('header h1').text('logs for #' + channel);
+      table.html('');
+      cachedTBodySegments = {};
+   }
+
+   Path.map("#/:channel").to(function() {
+      var channel = this.params['channel'];
+      init_viewer(channel);
+
+      if (changes_feed) { changes_feed.stop() };
+      pagination.begin = [channel, {}];
+      pagination.end = [channel, 0];
+      $('#next_page').hide();
+      loadPrevPage(channel, true).done(function (data) {
+         changes_feed = startUpdates(channel, data.update_seq);
+      });
+   });
+
+   Path.map("#/:channel/:date").to(function() {
+      var date = this.params['date'];
+      var channel = this.params['channel'];
+
+      var tzStr = $Utils.getLocalTimezone(date);
+      console.log(tzStr);
+      if ($Utils.isNumber(date)) {
+         var timestamp = parseInt(date);
+      } else if (date.length <= 10) {
+         // it's only a date, append a null time
+         var timestamp = new Date(date + 'T00:00:00' + tzStr).getTime() / 1000;
+      } else if (/[zZ+]/.test(date)) {
+         // has timezone
+         var timestamp = new Date(date).getTime() / 1000;
+      } else {
+         // didn't have a timezone yet, append the local
+         var timestamp = new Date(date+tzStr).getTime() / 1000;
+      }
+      loadFullDay(timestamp);
+   });
+
 
    var paginationClick = function(ev) {
       var self = $(this);
@@ -30,9 +93,6 @@ jQuery(function ($) {
       TINY.box.show({url:this.href});
       return false;
    });
-
-   var table = $("#irclog");
-   var cachedTBodySegments = {};
 
    function timestampToDatetime(timestamp) {
       var dt = new Date(timestamp * 1000);
@@ -107,10 +167,10 @@ jQuery(function ($) {
    }
 
 
-   function loadPrevPage(initial) {
+   function loadPrevPage(channel, initial) {
       var v = $Couch.view("channel", {
          startkey: pagination.begin,
-         endkey: [current_channel, 0],
+         endkey: [channel, 0],
          include_docs: true,
          limit: 100,
          descending: true
@@ -118,7 +178,7 @@ jQuery(function ($) {
          if (data.rows.length < 100) {
             // it's the begining of history
             $('#prev_page').hide();
-            pagination.begin = [current_channel, {}];
+            pagination.begin = [channel, {}];
          } else {
             var last = data.rows.slice(-1)[0];
             pagination.begin = last.key;
@@ -136,11 +196,11 @@ jQuery(function ($) {
     * @param timestamp in seconds
     * @return a jQuery Deferred object from the query request
     */
-   function loadFullDay(timestamp) {
+   function loadFullDay(channel, timestamp) {
       var until = timestamp + 24 * 60 * 60;
       var v = $Couch.view("channel", {
-         startkey: [current_channel, timestamp],
-         endkey: [current_channel, until],
+         startkey: [channel, timestamp],
+         endkey: [channel, until],
          include_docs: true,
          descending: false
       }).done(function (data) {
@@ -154,10 +214,10 @@ jQuery(function ($) {
    }
 
 
-   function loadNextPage() {
+   function loadNextPage(channel) {
       var v = $Couch.view("channel", {
          startkey: pagination.end,
-         endkey: [current_channel, {}],
+         endkey: [channel, {}],
          include_docs: true,
          limit: 100,
          descending: false
@@ -166,8 +226,8 @@ jQuery(function ($) {
             // it's the end of history, i.e. the present
             // so start the realtime updates
             $('#next_page').hide();
-            pagination.end = [current_channel, 0];
-            startUpdates(data.update_seq);
+            pagination.end = [channel, 0];
+            changes_feed = startUpdates(channel, data.update_seq);
          } else {
             var last = data.rows.slice(-1)[0];
             pagination.end = last.key;
@@ -200,11 +260,11 @@ jQuery(function ($) {
       }
    }
 
-   function startUpdates(last_update_seq) {
+   function startUpdates(channel, last_update_seq) {
       var query = {
          include_docs: true,
          filter: "log/channel",
-         channel: current_channel
+         channel: channel
       }
       var ch = $Couch.changes(last_update_seq, query);
       ch.on_changes(do_changes);
@@ -216,31 +276,5 @@ jQuery(function ($) {
       return ch;
    }
 
-
-
-   var date = $Utils.getQueryVariable("date");
-   if (date) {
-      var tzStr = $Utils.getLocalTimezone(date);
-      console.log(tzStr);
-      if ($Utils.isNumber(date)) {
-         var timestamp = parseInt(date);
-      } else if (date.length <= 10) {
-         // it's only a date, append a null time
-         var timestamp = new Date(date + 'T00:00:00' + tzStr).getTime() / 1000;
-      } else if (/[zZ+]/.test(date)) {
-         // has timezone
-         var timestamp = new Date(date).getTime() / 1000;
-      } else {
-         // didn't have a timezone yet, append the local
-         var timestamp = new Date(date+tzStr).getTime() / 1000;
-      }
-      loadFullDay(timestamp);
-   } else {
-      $('#next_page').hide();
-      loadPrevPage(true).done(function (data) {
-         // setTimeout trick is to stop the browser loader spinning
-         window.setTimeout(startUpdates, 1000, data.update_seq);
-      });
-   }
-
+   Path.listen();
 });

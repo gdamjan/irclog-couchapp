@@ -19,8 +19,7 @@
   <script type="text/javascript" src="script/jquery.min.js"></script>
   <script type="text/javascript" src="script/jquery.notice.js"></script>
   <link type="text/css" rel="stylesheet" href="style/jquery.notice.css" />
-  <script type="text/javascript" src="script/tinybox.js"></script>
-  <link rel="stylesheet" media="all" href="style/tinybox.css" />
+  <script type="text/javascript" src="script/path.min.js"></script>
 
   <!-- my stuff -->
   <script type="text/javascript" src="script/utils.js"></script>
@@ -31,15 +30,23 @@
 </head>
 <body>
 <header>
-  <div class="container">
-    <h1>IRC logs with realtime updates</h1>
+  <h1>IRC logs with realtime updates</h1>
+  <div id="infobox" style="display:none">
+     <p>
+     This web page is a viewer of irclogs collected by my erlang irc bot. The bot stores
+     the logs in a CouchDB where this web-app (or couchapp) is also stored.
+     </p>
+     <p>
+     The following channels are logged currently:
+     </p>
+     <ul id="channels"></ul>
   </div>
 </header>
 
 <div class="container">
-  <div id="prev_page" class="pagination">&#8593;previous history&#8593;</div>
+  <div id="prev_page" class="pagination" style="display:none">&#8593;previous history&#8593;</div>
   <table id="irclog" width="100%"> </table>
-  <div id="next_page" class="pagination">&#8595;next history&#8595;</div>
+  <div id="next_page" class="pagination" style="display:none">&#8595;next history&#8595;</div>
 </div>
 
 <footer>
@@ -47,17 +54,6 @@
     <a href="https://github.com/gdamjan/irclog-couchapp">github.com/gdamjan/irclog-couchapp</a>
   </div>
 </footer>
-
-<div id="settings">
-<ul>
-   <li><a href="tag-cloud">tag cloud</a></li>
-   <li><a href="histogram">histogram</a></li>
-   <li><a href="archive">archive</a></li>
-   <li><a href="channels">channels</a></li>
-   <li><a href="about">about</a></li>
-</ul>
-<img width=32 height=32 src="images/gear.png" alt="Settings">
-</div>
 
 <a href="https://github.com/gdamjan/irclog-couchapp"><img
     style="opacity: 0.7; position: absolute; top: 0; right: 0; border: 0;"

@@ -55,76 +55,20 @@
 
 .pagination { text-align: center; text-decoration: none; color:#808080; cursor:pointer }
 
-#settings {
-  position: fixed;
-  bottom: 0px;
-  right: 0px;
-  cursor: pointer;
-  opacity: 0.4;
-  height: 32px;
-  z-index: 10;
-}
-#settings:hover {
-  opacity:1;
-  height: auto;
-}
-#settings:hover>img {
-  display: none;
-}
-#settings ul {
-  left: 0;
-  margin: 0;
-  padding: 0;
-  position: relative;
-  background-color: #eee;
-  z-index: 9;
-  display: none;
-}
-#settings:hover>ul {
-  display: block;
-  -moz-animation: fadein 1s 1 ease-in;
-  -webkit-animation: fadein 1s 1 ease-in;
-  -ms-animation: fadein 1s 1 ease-in;
-}
-@-moz-keyframes fadein {
-    from { opacity: 0.4; }
-    to { opacity: 1; }
-}
-@-webkit-keyframes fadein {
-    from { opacity: 0.4; }
-    to { opacity: 1; }
-}
-@-ms-keyframes fadein {
-    from { opacity: 0.4; }
-    to { opacity: 1; }
-}
-
-#settings>ul li {
-  display: block;
-}
-#settings>ul li a {
-  color: #000;
-  display: block;
-  float: none;
-  line-height: 12px;
-  padding: 10px 10px 12px;
-  text-decoration: none;
-}
-#settings>ul li a:hover {
-  color: #ffffff;
-  background-color: #222;
-}
-
-.container {
+header {
   margin: 6px;
 }
 
-ul.tagcloud li {
+#infobox {
+  width:60%;
+}
+
+#tagcloud li {
   float: left;
   list-style: none;
   padding-left: 12px;
 }
-ul.channels li {
+#channels li {
   list-style-type: square;
 }
 
