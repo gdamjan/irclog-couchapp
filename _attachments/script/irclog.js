@@ -1,30 +1,6 @@
 jQuery(function ($) {
 
-   /* initialization */
-   /*
-   var current_channel;
-   current_channel = $Utils.getCookie('irclog_channel') || "lugola";
-   current_channel = $Utils.getQueryVariable("channel", current_channel);
-   $Utils.setCookie('irclog_channel', current_channel, 3000);
-   */
-   // var date = $Utils.getQueryVariable("date");
-
-   Path.root("#start");
-   Path.map("#start").to(function() {
-      $('#infobox').show();
-      var v = $Couch.view("channel", {group_level:1, reduce:true});
-      v.done(function(data) {
-         var i, len = data.rows.length;
-         for (i=0; i<len; i++) {
-            var title = data.rows[i].key[0];
-            var weight = data.rows[i].value;
-            var href = '#/' + title;
-            var link = $('<a>').attr('href', href).text(title);
-            $('#channels').append($('<li>').append(link));
-         }
-      });
-   });
-
+   // GLOBALS
    var focused = false;
    $(window).focus(function () { focused = true; });
    $(window).blur(function () { focused = false; });
@@ -33,6 +9,26 @@ jQuery(function ($) {
    var cachedTBodySegments, changes_feed;
    var secret_always_scroll_to_bottom = $Utils.getQueryVariable("auto-scroll", false);
    var pagination = {};
+   // GLOBALS
+
+   Path.root("#start");
+   Path.map("#start").to(function() {
+      $('#infobox').show();
+      var channels = $('#channels');
+      channels.html('');
+
+      var v = $Couch.view("channel", {group_level:1, reduce:true});
+      v.done(function(data) {
+         var i, len = data.rows.length;
+         for (i=0; i<len; i++) {
+            var title = data.rows[i].key[0];
+            var weight = data.rows[i].value;
+            var href = '#/' + title;
+            var link = $('<a>').attr('href', href).text(title);
+            channels.append($('<li>').append(link));
+         }
+      });
+   });
 
    function init_viewer(channel) {
       $('#infobox').hide();
