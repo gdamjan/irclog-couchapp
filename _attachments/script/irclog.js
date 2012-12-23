@@ -5,7 +5,7 @@ jQuery(function ($) {
    $(window).focus(function () { focused = true; });
    $(window).blur(function () { focused = false; });
 
-   var table = $("#irclog");
+   var irclog = $("#irclog");
    var cachedTBodySegments, changes_feed;
    var secret_always_scroll_to_bottom = $Utils.getQueryVariable("auto-scroll", false);
    var pagination = {};
@@ -14,6 +14,7 @@ jQuery(function ($) {
    Path.root("#start");
    Path.map("#start").to(function() {
       $('#infobox').show();
+      $('#container').hide();
       var channels = $('#channels');
       channels.html('');
 
@@ -32,10 +33,10 @@ jQuery(function ($) {
 
    function init_viewer(channel) {
       $('#infobox').hide();
-      $('.pagination').show();
+      $('#container').show();
       $('title').text('logs for #' + channel);
       $('header h1').text('logs for #' + channel);
-      table.html('');
+      irclog.html('');
       cachedTBodySegments = {};
    }
 
@@ -111,10 +112,10 @@ jQuery(function ($) {
    function makeTableRow(message, permalink, anchor, datetime) {
       var out = '';
       out += '<tr>';
+      out += '<td class="message">' + message + '</td>';
       out += '<td valign="top" class="timestamp" width="1%">';
       out += '<a id="' + anchor + '" href="' + permalink + '">' + datetime.time + '</a>';
       out += '</td>';
-      out += '<td class="message">' + message + '</td>';
       out += '</tr>\n';
       return out;
    }
@@ -148,7 +149,7 @@ jQuery(function ($) {
       cachedTBodySegments[date] = tbody;
       tbody.append('<tr><th class="date" colspan="2"><span>' + date + '</span></th></tr>');
 
-      var bodies = table.children('tbody');
+      var bodies = irclog.children('tbody');
       var i, done = false;
       for (i=0; i<bodies.length; i++) {
          if (date < bodies[i].id) {
@@ -157,7 +158,7 @@ jQuery(function ($) {
             break;
          }
       }
-      if (!done) table.append(tbody);
+      if (!done) irclog.append(tbody);
 
       return tbody;
    }
