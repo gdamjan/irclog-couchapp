@@ -54,11 +54,11 @@ jQuery(function ($) {
    });
 
    Path.map("#/:channel/:date").to(function() {
-      var date = this.params['date'];
       var channel = this.params['channel'];
+      init_viewer(channel);
 
+      var date = this.params['date'];
       var tzStr = $Utils.getLocalTimezone(date);
-      console.log(tzStr);
       if ($Utils.isNumber(date)) {
          var timestamp = parseInt(date);
       } else if (date.length <= 10) {
@@ -71,7 +71,7 @@ jQuery(function ($) {
          // didn't have a timezone yet, append the local
          var timestamp = new Date(date+tzStr).getTime() / 1000;
       }
-      loadFullDay(timestamp);
+      loadFullDay(channel, timestamp);
    });
 
 
@@ -126,8 +126,8 @@ jQuery(function ($) {
          var doc = rows[i].doc;
          var color = $Colorizer(doc.sender.toLowerCase());
          var datetime = timestampToDatetime(doc.timestamp);
-         var permalink = '?channel=' + doc.channel +
-                   ';date=' + datetime.date + 'T' + datetime.time;
+         var permalink = '#/' + doc.channel +
+                   '/' + datetime.date + 'T' + datetime.time;
          var anchor = datetime.date + 'T' + datetime.time;
          var msg = fmtMessage(doc, color);
          var row = makeTableRow(msg, permalink, anchor, datetime);
