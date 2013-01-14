@@ -96,6 +96,8 @@ footer div { margin: 8px 6px 0; padding-bottom: 0.4em;}
 footer a { text-decoration: none; color: #555555; }
 footer a:hover { text-decoration: underline; color: #152C5C }
 
+tr:hover { background-color: #eee; }
+
 body {
   font-family: sans-serif;
   font-size: 100%;
