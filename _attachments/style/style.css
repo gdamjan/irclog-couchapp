@@ -37,12 +37,6 @@
   vertical-align: baseline;
 }
 
-.channels {
-  list-style: square outside none;
-  font-size: 90%;
-  padding-left: 1em;
-  margin-top: 0;
-}
 #irclog tbody {
   position: relative;
   z-index: 2;
