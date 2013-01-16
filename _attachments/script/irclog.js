@@ -49,7 +49,9 @@ jQuery(function ($) {
       pagination.end = [channel, 0];
       $('#next_page').hide();
       loadPrevPage(channel, true).done(function (data) {
-         changes_feed = startUpdates(channel, data.update_seq);
+         setTimeout(function () {
+            changes_feed = startUpdates(channel, data.update_seq)
+         }, 1000);
       });
    });
 
