@@ -107,7 +107,7 @@ jQuery(function ($) {
       msg = $Utils.escapeHTML(doc.message);
       msg = $Utils.autoLink(msg);
       msg = msg.replace(/^\x01ACTION (.*)\x01/g, '<span class="nickname" style="background-color:' + color + '">$1</span>');
-      out += '<span>' + msg + '</span>';
+      out += ' <span>' + msg + '</span>';
       return out;
    }
 
