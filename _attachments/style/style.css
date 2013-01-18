@@ -3,7 +3,6 @@
   font-size: 80%;
   color: #808080;
   padding-top: 6px;
-  padding-right: 6px;
   vertical-align: top;
 }
 .timestamp a {
@@ -18,7 +17,6 @@
 
 .date span {
   float: right;
-/*  margin-top: -6px; */
 }
 
 .nickname {
@@ -30,7 +28,6 @@
 
 .message {
   font-size: 100%;
-  margin-left: 3.0em;
   padding: 0;
 }
 .message span {
@@ -61,10 +58,6 @@ header {
   margin: 6px;
 }
 
-#infobox {
-  width:60%;
-}
-
 #tagcloud li {
   float: left;
   list-style: none;
@@ -91,11 +84,10 @@ footer div { margin: 8px 6px 0; padding-bottom: 0.4em;}
 footer a { text-decoration: none; color: #555555; }
 footer a:hover { text-decoration: underline; color: #152C5C }
 
-tr:hover { background-color: #eee; }
+/* tr:hover { background-color: #eee; } */
 
 body {
   font-family: sans-serif;
-  font-size: 100%;
   margin: 0;
   padding: 0;
 }
