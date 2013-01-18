@@ -42,10 +42,6 @@
   color: #808080;
 }
 
-#lines .message {
-  color: #000000;
-}
-
 #notifications * {
   font-size: 90%;
   color: #ddd;
@@ -53,10 +49,6 @@
 }
 
 .pagination { text-align: center; text-decoration: none; color:#808080; cursor:pointer }
-
-header {
-  margin: 6px;
-}
 
 #tagcloud li {
   float: left;
@@ -73,6 +65,10 @@ a:hover.tag { border: 1px solid #eee; }
 h1 {
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
   color: #444444;
+}
+
+header {
+  margin: 6px;
 }
 
 footer {
