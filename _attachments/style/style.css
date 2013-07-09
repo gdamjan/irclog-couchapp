@@ -34,6 +34,7 @@
   vertical-align: baseline;
 }
 
+#irclog { width: 100% }
 #irclog tbody {
   position: relative;
   z-index: 2;
@@ -67,7 +68,7 @@ h1 {
   color: #444444;
 }
 
-header {
+header, div#infobox {
   margin: 6px;
 }
 
@@ -75,6 +76,12 @@ footer {
   border-top: 1px dashed #aaaaaa;
   margin-top: 1em;
   background-color: #eeeeee;
+/*
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  z-index:4;
+ */
 }
 footer div { margin: 8px 6px 0; padding-bottom: 0.4em;}
 footer a { text-decoration: none; color: #555555; }
