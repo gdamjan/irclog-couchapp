@@ -133,7 +133,7 @@ jQuery(function ($) {
          var anchor = datetime.date + 'T' + datetime.time;
          var msg = fmtMessage(doc, color);
          var row = makeTableRow(msg, permalink, anchor, datetime);
-         var tbody = getTableSegment(datetime.date);
+         var tbody = getTableSegment(doc.channel, datetime.date);
          if (descending) {
             $(tbody.children()[0]).after(row);
          } else {
@@ -142,14 +142,15 @@ jQuery(function ($) {
       }
    }
 
-   function getTableSegment(date) {
+   function getTableSegment(channel, date) {
       var tbody = cachedTBodySegments[date];
       if (tbody !== undefined)
          return tbody;
       tbody = $('<tbody>');
       tbody.attr('id', date);
       cachedTBodySegments[date] = tbody;
-      tbody.append('<tr><th class="date" colspan="2"><span>' + date + '</span></th></tr>');
+      var link = '<a href="#/' + channel + '/' + date + '">' + date + '</a>';
+      tbody.append('<tr class="date"><th colspan="2"><span>' + link + '</span></th></tr>');
 
       var bodies = irclog.children('tbody');
       var i, done = false;
@@ -205,8 +206,16 @@ jQuery(function ($) {
       }).done(function (data) {
          var last = data.rows.slice(-1)[0];
          var first = data.rows[0];
-         pagination.begin = first.key;
-         pagination.end = last.key;
+         if (first) {
+            pagination.begin = first.key;
+         } else {
+            pagination.begin = [channel, {}];
+         }
+         if (last) {
+            pagination.end = last.key;
+         } else {
+            pagination.end = [channel, 0];
+         }
          displayRows(data.rows);
       });
       return v;
