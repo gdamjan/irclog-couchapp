@@ -1,7 +1,7 @@
 "use strict";
 
 
-var irclog = angular.module('ircLog', ['CornerCouch', 'Colorizer']);
+var irclog = angular.module('ircLog', ['CouchDB', 'Colorizer']);
 
 irclog.config(function($routeProvider) {
    $routeProvider
@@ -10,7 +10,7 @@ irclog.config(function($routeProvider) {
          controller: 'IndexController'
       })
       .when('/:channel', {
-         templateUrl: 'channel-logs.html',
+         templateUrl: 'channel-log.html',
          controller: 'ChannelLogsController'
       })
       .otherwise({ redirectTo: '/'});
@@ -18,14 +18,17 @@ irclog.config(function($routeProvider) {
 
 irclog.controller('IndexController', function ($rootScope, $scope, couchdb) {
    delete $rootScope.title;
-   $scope.channels = couchdb.getChannels();
+   $scope.cursor = couchdb.View('ddoc/_view/channel', {
+      update_seq: true,
+      reduce: true,
+      group_level: 1
+   });
 });
 
-irclog.controller('ChannelLogsController', function ($rootScope, $scope, $routeParams, cornercouch) {
+irclog.controller('ChannelLogsController', function ($rootScope, $scope, $routeParams, couchdb) {
    $scope.channel = $rootScope.title = $routeParams.channel;
 
-   $scope.db = cornercouch('http://db.softver.org.mk', 'JSONP').getDB('irclog');
-   $scope.db.query("log", "channel", {
+   $scope.cursor = couchdb.View('ddoc/_view/channel', {
       include_docs: true,
       descending: true,
       reduce: false,
@@ -34,8 +37,9 @@ irclog.controller('ChannelLogsController', function ($rootScope, $scope, $routeP
       endkey: [$routeParams.channel, 0]
    });
 
+
    // swaped because of "descending: true" we go back in the past
-   $scope.prevClick = function() { $scope.db.queryNext() };
-   $scope.nextClick = function() { $scope.db.queryPrev() };
+   $scope.prevClick = function() { $scope.cursor.next() };
+   $scope.nextClick = function() { $scope.cursor.prev() };
 
 });

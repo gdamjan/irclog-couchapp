@@ -7,8 +7,8 @@
 
    <title>IRClogger 2.0</title>
 
-   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
-   <script src="script/angular-cornercouch.js"></script>
+   <script src="script/angular.min.js"></script>
+   <script src="script/irclog-couch.js"></script>
    <script src="script/angular-colorizer.js"></script>
    <script src="script/irclog-app.js"></script>
    <link type="text/css" rel="stylesheet" href="style/style.css" />
@@ -17,7 +17,7 @@
 </head>
 <body>
 <header>
-   <h1 ng-bind=title>IRC logs with realtime updates</h1>
+   <h1>{{ title || 'IRC logs with realtime updates' }}</h1>
 </header>
 
 <!-- placeholder for partial views -->
@@ -35,15 +35,15 @@
     alt="Fork me on GitHub"></a>
 
 
-<script type="text/ng-template" id="channel-logs.html">
+<script type="text/ng-template" id="channel-log.html">
 <div>
-  <div class="pagination" ng-click="prevClick()" ng-show="db.nextRow">&#8593;previous history&#8593;</div>
+  <div class="pagination" ng-click="prevClick()" ng-show="cursor.nextRow">&#8593;previous history&#8593;</div>
   <table id="irclog">
      <tbody id="2013-07-08"> <!-- FIXME THIS -->
      <tr class="date">
         <th colspan="2"><span><a href="#/lugola/2013-07-08">2013-07-08</a></span></th>
      </tr>
-     <tr data-ng-repeat="row in db.rows | orderBy:'doc.timestamp'">
+     <tr data-ng-repeat="row in cursor.rows | orderBy:'doc.timestamp'">
         <td class="message">
            <span class="nickname" style="background-color:{{row.doc.sender | colorize}}">{{row.doc.sender}}</span>
            <span>{{row.doc.message}}</span>
@@ -53,9 +53,10 @@
         </td>
      </tr>
   </table>
-  <div class="pagination" ng-click="nextClick()" ng-show="db.prevRows.length">&#8595;more history&#8595;</div>
+  <div class="pagination" ng-click="nextClick()" ng-show="cursor.prevRows.length">&#8595;more history&#8595;</div>
 </div>
 </script>
+
 
 <script type="text/ng-template" id="start.html">
 <div id="infobox">
@@ -70,8 +71,8 @@
    The following channels are currently logged:
    </p>
    <ul>
-      <li data-ng-repeat="channel in channels">
-      <a href="#/{{channel}}">{{ channel }}</a>
+      <li data-ng-repeat="row in cursor.rows">
+      <a href="#/{{row.key[0]}}" title="Number of messages logged: {{ row.value }}">{{ row.key[0] }}</a>
       </li>
    </ul>
    <p>If you want your irc channel on freenode logged, contact 'damjan' on #lugola.</p>
