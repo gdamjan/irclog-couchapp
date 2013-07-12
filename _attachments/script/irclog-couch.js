@@ -55,7 +55,6 @@ factory('couchdb', ['$http', function($http) {
 
        // immutable
        this.qConfig = extendJSONP(config);
-       this.executeQuery(this.qConfig);
     };
 
     CouchView.prototype.executeQuery = function(qConfig) {

@@ -20,6 +20,7 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
       reduce: true,
       group_level: 1
    });
+   $scope.cursor.queryRefresh();
 })
 
 .controller('ChannelLogsController', function ($rootScope, $scope, $routeParams, couchdb) {
@@ -38,4 +39,5 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
    $scope.prevClick = function() { $scope.cursor.next() };
    $scope.nextClick = function() { $scope.cursor.prev() };
 
+   $scope.cursor.queryRefresh();
 })
