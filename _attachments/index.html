@@ -8,6 +8,7 @@
    <title>IRClogger 2.0</title>
 
    <script src="script/angular.min.js"></script>
+   <script src="script/angular-route.min.js"></script>
    <script src="script/irclog-couch.js"></script>
    <script src="script/angular-colorizer.js"></script>
    <script src="script/irclog-app.js"></script>
@@ -37,7 +38,9 @@
 
 <script type="text/ng-template" id="channel-log.html">
 <div>
-  <div class="pagination" ng-click="prevClick()" ng-show="cursor.nextRow">&#8593;previous history&#8593;</div>
+  <div class="pagination" data-ng-click="prevClick()"
+         data-ng-show="cursor.nextRow">&#8593;previous history&#8593;</div>
+
   <table id="irclog">
      <tbody id="2013-07-08"> <!-- FIXME THIS -->
      <tr class="date">
@@ -46,14 +49,16 @@
      <tr data-ng-repeat="row in cursor.rows | orderBy:'doc.timestamp'">
         <td class="message">
            <span class="nickname" style="background-color:{{row.doc.sender | colorize}}">{{row.doc.sender}}</span>
-           <span>{{row.doc.message}}</span>
+           <span data-ng-bind="row.doc.message">the message goes here</span>
         </td>
         <td class="timestamp" valign="top" width="1%">
            <a id="{{row.id}}" href="#/{{channel}}/{{row.id}}">{{1000* row.doc.timestamp | date:'HH:mm:ss'}}</a>
         </td>
      </tr>
   </table>
-  <div class="pagination" ng-click="nextClick()" ng-show="cursor.prevRows.length">&#8595;more history&#8595;</div>
+
+  <div class="pagination" data-ng-click="nextClick()"
+         data-ng-show="cursor.prevRows.length">&#8595;more history&#8595;</div>
 </div>
 </script>
 

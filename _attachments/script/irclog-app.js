@@ -1,7 +1,7 @@
 "use strict";
 
 
-var irclog = angular.module('ircLog', ['CouchDB', 'Colorizer']);
+var irclog = angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer']);
 
 irclog.config(function($routeProvider) {
    $routeProvider
