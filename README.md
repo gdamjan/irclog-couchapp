@@ -1,6 +1,6 @@
 # IrcLog CouchApp
 
-This is a CouchApp to view irc logs stored in a CouchDB database. The irclogs can be stored by my https://github.com/gdamjan/erlang-irc-bot program, or anything else that will store them in the following structure:
+This is a CouchApp to view irc logs stored in a CouchDB database. The irclogs can be stored by my [ircbot](https://github.com/gdamjan/erlang-irc-bot) and its [couchdb loging plugin](https://github.com/gdamjan/erlang-irc-bot-skopjehacklab/blob/master/src/ircbot_plugin_couch_log.erl) for example, or anything else that will store them in the following structure:
 
 
     {
