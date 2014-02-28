@@ -4,8 +4,8 @@
 angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routeProvider) {
    $routeProvider
       .when('/', {
-         templateUrl: 'start.html',
-         controller: 'StartController'
+         templateUrl: 'home.html',
+         controller: 'HomeController'
       })
       .when('/:channel', {
          templateUrl: 'channel-log.html',
@@ -14,7 +14,7 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
       .otherwise({ redirectTo: '/'});
 })
 
-.controller('StartController', function ($rootScope, $scope, couchdb) {
+.controller('HomeController', function ($rootScope, $scope, couchdb) {
    delete $rootScope.title;
    $scope.cursor = couchdb.View('ddoc/_view/channel', {
       reduce: true,
