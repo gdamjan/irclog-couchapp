@@ -4,8 +4,8 @@
 //
 'use strict';
 
-angular.module('CouchDB', ['ng']).
-factory('couchdb', ['$http', function($http) {
+angular.module('CouchDB', ['ng'])
+.factory('couchdb', ['$http', function($http) {
 
     // Shorthand angular
     var ng = angular;
