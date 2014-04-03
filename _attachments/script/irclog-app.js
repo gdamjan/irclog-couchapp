@@ -1,5 +1,6 @@
 "use strict";
 
+var URL_BASE = 'https://irc.softver.org.mk/';
 
 angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routeProvider) {
    $routeProvider
@@ -16,17 +17,18 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
 
 .controller('HomeController', function ($rootScope, $scope, couchdb) {
    delete $rootScope.title;
-   $scope.cursor = couchdb.View('ddoc/_view/channel', {
+   $scope.cursor = couchdb.View(URL_BASE + 'ddoc/_view/channel', {
       reduce: true,
       group_level: 1
    });
    $scope.cursor.queryRefresh();
 })
 
-.controller('ChannelLogsController', function ($rootScope, $scope, $routeParams, couchdb) {
+.controller('ChannelLogsController', function ($rootScope, $scope, $routeParams,
+                                               couchdb, couchchanges) {
    $scope.channel = $rootScope.title = $routeParams.channel;
 
-   $scope.cursor = couchdb.View('ddoc/_view/channel', {
+   $scope.cursor = couchdb.View(URL_BASE + 'ddoc/_view/channel', {
       include_docs: true,
       descending: true,
       reduce: false,
@@ -39,5 +41,15 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
    $scope.prevClick = function() { $scope.cursor.next() };
    $scope.nextClick = function() { $scope.cursor.prev() };
 
-   $scope.cursor.queryRefresh();
+   $scope.cursor.queryRefresh().then(function() {
+
+      var params = { include_docs:true, since: $scope.cursor.update_seq,
+                     filter: 'log/channel', channel: 'lugola' };
+      var ch = couchchanges(URL_BASE + 'api/_changes', params);
+      ch.then(
+         function (s) { console.log(s) },
+         function (err) { console.log(err) },
+         function (data) { console.log(data) }
+      );
+   });
 })

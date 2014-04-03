@@ -5,7 +5,7 @@
 'use strict';
 
 angular.module('CouchDB', ['ng'])
-.factory('couchdb', ['$http', function($http) {
+.factory('couchdb', function($http) {
 
     // Shorthand angular
     var ng = angular;
@@ -314,4 +314,4 @@ angular.module('CouchDB', ['ng'])
        View:      function (url, params, method) { return new CouchView(url, params, method) }
     };
 
-}]);
+})
