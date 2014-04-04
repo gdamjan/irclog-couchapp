@@ -27,30 +27,39 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
 .controller('ChannelLogsController', function ($rootScope, $scope, $routeParams,
                                                couchView, couchChanges) {
    $scope.channel = $rootScope.title = $routeParams.channel;
+   $scope.rows = [];
 
-   $scope.cursor = couchView(URL_BASE + 'ddoc/_view/channel', {
+   var view = couchView(URL_BASE + 'ddoc/_view/channel', {
       include_docs: true,
       descending: true,
-      reduce: false,
-      update_seq: true,
       limit: 100,
       startkey: [$routeParams.channel, {}],
       endkey: [$routeParams.channel, 0]
    });
 
-   // swaped because of "descending: true" we go back in the past
-   $scope.prevClick = function() { $scope.cursor.next() };
-   $scope.nextClick = function() { $scope.cursor.prev() };
+   view.get().then(function (result) {
+      $scope.rows.push.apply($scope.rows, result.rows)
 
-   $scope.cursor.queryRefresh().then(function() {
-
-      var params = { include_docs:true, since: $scope.cursor.update_seq,
+      var params = { include_docs:true, since: result.last_seq,
                      filter: 'log/channel', channel: 'lugola' };
-      var ch = couchChanges(URL_BASE + 'api/_changes', params);
-      ch.then(
-         function (s) { console.log(s) },
+
+      couchChanges(URL_BASE + 'api/_changes', params).then(
+         null,
          function (err) { console.log(err) },
-         function (data) { console.log(data) }
+         function (data) {
+            console.log("notify");
+            $scope.rows.push.apply($scope.rows, data.results);
+         }
       );
+
    });
+
+   var pager = view;
+   $scope.prevClick = function() {
+      // .next() because of "descending: true" we go back towards the past
+      pager = pager.next();
+      pager.get().then(function (result) {
+         $scope.rows.concat(result.rows);
+      })
+   };
 })

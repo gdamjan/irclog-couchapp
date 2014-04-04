@@ -44,11 +44,11 @@
          data-ng-show="cursor.nextRow">&#8593;previous history&#8593;</div>
 
   <table id="irclog">
-     <tbody id="2013-07-08"> <!-- FIXME THIS -->
+     <tbody id="2000-00-00"> <!-- FIXME THIS -->
      <tr class="date">
         <th colspan="2"><span><a href="#/lugola/2013-07-08">2013-07-08</a></span></th>
      </tr>
-     <tr data-ng-repeat="row in cursor.rows | orderBy:'doc.timestamp'">
+     <tr data-ng-repeat="row in rows | orderBy:'doc.timestamp'">
         <td class="message">
            <span class="nickname" style="background-color:{{row.doc.sender | colorize}}">{{row.doc.sender}}</span>
            <span data-ng-bind="row.doc.message">the message goes here</span>
@@ -78,7 +78,7 @@
    The following channels are currently logged:
    </p>
    <ul>
-      <li data-ng-repeat="row in cursor.rows">
+      <li data-ng-repeat="row in rows">
       <a href="#/{{row.key[0]}}" title="Number of messages logged: {{ row.value }}">{{ row.key[0] }}</a>
       </li>
    </ul>
