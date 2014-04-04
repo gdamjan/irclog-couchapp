@@ -15,9 +15,9 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
       .otherwise({ redirectTo: '/'});
 })
 
-.controller('HomeController', function ($rootScope, $scope, couchdb) {
+.controller('HomeController', function ($rootScope, $scope, couchView) {
    delete $rootScope.title;
-   $scope.cursor = couchdb.View(URL_BASE + 'ddoc/_view/channel', {
+   $scope.cursor = couchView(URL_BASE + 'ddoc/_view/channel', {
       reduce: true,
       group_level: 1
    });
@@ -25,13 +25,14 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
 })
 
 .controller('ChannelLogsController', function ($rootScope, $scope, $routeParams,
-                                               couchdb, couchchanges) {
+                                               couchView, couchChanges) {
    $scope.channel = $rootScope.title = $routeParams.channel;
 
-   $scope.cursor = couchdb.View(URL_BASE + 'ddoc/_view/channel', {
+   $scope.cursor = couchView(URL_BASE + 'ddoc/_view/channel', {
       include_docs: true,
       descending: true,
       reduce: false,
+      update_seq: true,
       limit: 100,
       startkey: [$routeParams.channel, {}],
       endkey: [$routeParams.channel, 0]
@@ -45,7 +46,7 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
 
       var params = { include_docs:true, since: $scope.cursor.update_seq,
                      filter: 'log/channel', channel: 'lugola' };
-      var ch = couchchanges(URL_BASE + 'api/_changes', params);
+      var ch = couchChanges(URL_BASE + 'api/_changes', params);
       ch.then(
          function (s) { console.log(s) },
          function (err) { console.log(err) },

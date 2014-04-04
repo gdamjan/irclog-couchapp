@@ -9,7 +9,7 @@
 "use strict";
 
 angular.module('CouchDB')
-.factory('couchchanges', function($http, $q, $timeout) {
+.factory('couchChanges', function($http, $q, $timeout) {
 
    function realEventSource(url, params) {
       var _params = { heartbeat: 10000, feed: 'eventsource'};
@@ -56,20 +56,18 @@ angular.module('CouchDB')
 
          req.then(function(response) {
             result.notify(response.data);
-            return response.data.last_seq;
-         }).then(function (last_seq) {
-            _loop(last_seq);
-         }).catch(function(err) {
-            if (err.status != 0) {
-               // 0 is timeout, so this is another error
+            _loop(response.data.last_seq);
+         });
+         req.catch(function(err) {
+            if (err.status == 0) {
+               // 0 is timeout, repeat
+               _loop(last_seq);
+            } else {
                // either restart the _loop or reject the promise
-               // result.reject(err);
                // but lets just debug for now until I see all the breakages that can happen
                console.log(err); // DEBUG
-               throw new UserException("Hey exception");
+               result.reject(err);
             }
-         }).then(function () {
-            _loop(_params.since);
          });
       }
       _loop(params.since); // start it the first time
