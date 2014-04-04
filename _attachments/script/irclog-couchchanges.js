@@ -1,31 +1,34 @@
-"use strict";
-/* A module for the CouchDB changes feed
- * 
+/* Copyright: 2014, Damjan Georgievski
+ * MIT License applies
+ *
+ * A module for the CouchDB changes feed
+ *
  * it will use either EventSource or longpoll depending on what's available in the browser or on the server (todo)
  * it provides a unified api through a promise that notifies.
  */
+"use strict";
 
 angular.module('CouchDB')
 .factory('couchchanges', function($http, $q, $timeout) {
-  
+
    function realEventSource(url, params) {
       var _params = { heartbeat: 10000, feed: 'eventsource'};
       var _url = buildUrl(url, _params);
-      var source = new EventSource(_url);
+      var source = new window.EventSource(_url);
       var result = $q.defer();
 
       source.addEventListener('message', function(ev) {
-         var data = JSON.parse(ev.data);
+         var data = angular.fromJson(ev.data);
          result.notify(data);
       }, false);
 
       source.addEventListener('open', function() {
-         console.log("Connection was opened.");
+         console.log("EventSource connection was opened.");
       }, false);
 
       source.addEventListener('error', function(err) {
          if (err.readyState == EventSource.CLOSED) {
-            console.log("Connection was closed.");
+            console.log("EventSource connection was closed.");
          } else {
             console.log("error", err);
          }
@@ -40,38 +43,43 @@ angular.module('CouchDB')
    // a longpoll request can get stuck at the TCP level
    // so kill it each 60 seconds and retry it just in case
    var DEADLINE = 60000;
-   
+
    function longPolledEventSource (url, params) {
       var result = $q.defer();
-      
-      function _loop () {
-         var _params = { heartbeat: 20000, feed: 'longpoll'};
-         angular.extend(_params, params);
+      // return error if no since ?
+      var _params = { heartbeat: 20000, feed: 'longpoll'};
+      angular.extend(_params, params);
 
+      function _loop (last_seq) {
+         _params.since = last_seq;
          var req = $http({method: 'GET', url: url, params: _params, timeout: DEADLINE});
 
          req.then(function(response) {
             result.notify(response.data);
-            $timeout(_loop, 1); // poor mans TCO
+            return response.data.last_seq;
+         }).then(function (last_seq) {
+            _loop(last_seq);
          }).catch(function(err) {
-            if (err.status == 0) { // timeout
-               $timeout(_loop, 15000); // poor mans TCO
-            } else {
-	       // either restart the _loop or reject the promise
+            if (err.status != 0) {
+               // 0 is timeout, so this is another error
+               // either restart the _loop or reject the promise
                // result.reject(err);
-	       // but lets just debug for now until I see all the breakages that can happen
+               // but lets just debug for now until I see all the breakages that can happen
                console.log(err); // DEBUG
+               throw new UserException("Hey exception");
             }
+         }).then(function () {
+            _loop(_params.since);
          });
       }
-      $timeout(_loop, 1); // start it the first time
+      _loop(params.since); // start it the first time
       return result.promise;
    }
-   
+
    // I'm testing longPolledEventSource for now
    return longPolledEventSource;
 
-   
+
    if (!!window.EventSource) {
       return realEventSource;
    } else {
