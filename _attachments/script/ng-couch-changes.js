@@ -11,75 +11,78 @@
 angular.module('CouchDB')
 .factory('couchChanges', function($http, $q, $timeout) {
 
-   function realEventSource(url, params) {
-      var _params = { heartbeat: 10000, feed: 'eventsource'};
-      var _url = buildUrl(url, _params);
-      var source = new window.EventSource(_url);
-      var result = $q.defer();
-
-      source.addEventListener('message', function(ev) {
-         var data = angular.fromJson(ev.data);
-         result.notify(data);
-      }, false);
-
-      source.addEventListener('open', function() {
-         console.log("EventSource connection was opened.");
-      }, false);
-
-      source.addEventListener('error', function(err) {
-         if (err.readyState == EventSource.CLOSED) {
-            console.log("EventSource connection was closed.");
-         } else {
-            console.log("error", err);
-         }
-      }, false);
-
-      result.promise.close = function() {
-         source.close();
-      }
-      return result.promise;
+   function buildUrl(url, params) {
+     var str = [];
+     for(var p in params)
+       if (params.hasOwnProperty(p)) {
+         str.push(encodeURIComponent(p) + "=" + encodeURIComponent(params[p]));
+       }
+     return url + '?' + str.join("&");
    }
 
-   // a longpoll request can get stuck at the TCP level
-   // so kill it each 60 seconds and retry it just in case
-   var DEADLINE = 60000;
-
-   function longPolledEventSource (url, params) {
+   return function (url, params) {
       var result = $q.defer();
       // return error if no since ?
-      var _params = { heartbeat: 20000, feed: 'longpoll'};
-      angular.extend(_params, params);
 
-      function _loop (last_seq) {
-         _params.since = last_seq;
-         var req = $http({method: 'GET', url: url, params: _params, timeout: DEADLINE});
+      // a longpoll request can get stuck at the TCP level
+      // so kill it each 60 seconds and retry it just in case
+      var DEADLINE = 60000;
 
-         req.then(function(response) {
-            result.notify(response.data);
-            _loop(response.data.last_seq);
-         });
-         req.catch(function(err) {
-            if (err.status == 0) {
-               // 0 is timeout, repeat
-               _loop(last_seq);
+      function longPollFallback (url, params) {
+         var _params = angular.copy(params);
+         _params.feed = 'longpoll';
+         _params.heartbeat = 20000;
+
+         function _loop (last_seq) {
+            _params.since = last_seq;
+            var req = $http({method: 'GET', url: url, params: _params, timeout: DEADLINE});
+
+            req.then(function(response) {
+               result.notify(response.data.results);
+               _loop(response.data.last_seq);
+            });
+            req.catch(function(err) {
+               if (err.status == 0) {
+                  // 0 is timeout, repeat
+                  _loop(last_seq);
+               } else {
+                  // either restart the _loop or reject the promise
+                  // but lets just debug for now until I see all the breakages that can happen
+                  result.reject(err);
+               }
+            });
+         }
+         _loop(params.since); // start it the first time
+      }
+
+      if (!!window.EventSource) {
+         var _params = angular.copy(params);
+         _params.feed = 'eventsource';
+         var _url = buildUrl(url, _params);
+         var source = new window.EventSource(_url);
+
+         source.addEventListener('error', function(err) {
+            if (source.readyState == 2 && err.type == 'error' && err.eventPhase == 2) {
+               // window.EventSource run the longpolled fallback
+               longPollFallback(url, params);
             } else {
-               // either restart the _loop or reject the promise
-               // but lets just debug for now until I see all the breakages that can happen
+               // FIXME: what is it???
+               console.log(src.readyState);
+               console.log(err.eventPhase);
+               console.log(err);
                result.reject(err);
             }
-         });
+         }, false);
+
+         source.addEventListener('message', function(ev) {
+            var data = angular.fromJson(ev.data);
+            result.notify([data]);
+         }, false);
+      } else {
+         // no window.EventSource
+         longPollFallback(url, params);
       }
-      _loop(params.since); // start it the first time
+
       return result.promise;
-   }
-
-   // I'm testing longPolledEventSource for now
-   return longPolledEventSource;
-
-
-   if (!!window.EventSource) {
-      return realEventSource;
-   } else {
-      return longPolledEventSource;
    }
 })

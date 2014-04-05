@@ -53,7 +53,7 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
          function (err) { console.log(err) },
          function (data) {
             console.log("notify");
-            $scope.rows.push.apply($scope.rows, data.results);
+            $scope.rows.push.apply($scope.rows, data);
          }
       );
    });
