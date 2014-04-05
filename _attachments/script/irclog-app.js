@@ -21,11 +21,13 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
 
 .controller('HomeController', function ($rootScope, $scope, couchView) {
    delete $rootScope.title;
-   $scope.cursor = couchView(URL_BASE + 'ddoc/_view/channel', {
+   $scope.rows = [];
+   couchView(URL_BASE + 'ddoc/_view/channel', {
       reduce: true,
       group_level: 1
+   }).get().then(function(result) {
+      $scope.rows.push.apply($scope.rows, result.rows)
    });
-   $scope.cursor.queryRefresh();
 })
 
 .controller('ChannelLogsController', function ($rootScope, $scope, $routeParams,
