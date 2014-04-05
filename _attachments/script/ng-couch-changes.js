@@ -65,7 +65,6 @@ angular.module('CouchDB')
             } else {
                // either restart the _loop or reject the promise
                // but lets just debug for now until I see all the breakages that can happen
-               console.log(err); // DEBUG
                result.reject(err);
             }
          });
