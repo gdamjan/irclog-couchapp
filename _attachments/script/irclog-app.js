@@ -12,6 +12,10 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
          templateUrl: 'channel-log.html',
          controller: 'ChannelLogsController'
       })
+      .when('/:channel/:docid', {
+         templateUrl: 'channel-log.html',
+         controller: 'ChannelLogAroundDocController'
+      })
       .otherwise({ redirectTo: '/'});
 })
 
@@ -42,7 +46,6 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
 
       var params = { include_docs:true, since: result.last_seq,
                      filter: 'log/channel', channel: 'lugola' };
-
       couchChanges(URL_BASE + 'api/_changes', params).then(
          null,
          function (err) { console.log(err) },
@@ -51,15 +54,68 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
             $scope.rows.push.apply($scope.rows, data.results);
          }
       );
-
    });
 
    var pager = view;
    $scope.prevClick = function() {
-      // .next() because of "descending: true" we go back towards the past
-      pager = pager.next();
+      // because of "descending: true" we go back towards the past,
+      // so counterintuitively use .loadAfter()
+      pager = pager.loadAfter();
       pager.get().then(function (result) {
-         $scope.rows.concat(result.rows);
+         $scope.rows.push.apply($scope.rows, result.rows);
       })
    };
 })
+
+.controller('ChannelLogAroundDocController', function ($rootScope, $scope, $routeParams,
+                                               $q, couchDB, couchView) {
+   $scope.channel = $rootScope.title = $routeParams.channel;
+   $scope.rows = [];
+
+   var db = couchDB(URL_BASE + 'api');
+   db.getDoc($routeParams.docid).then(function (doc) {
+
+      var view1 = couchView(URL_BASE + 'ddoc/_view/channel', {
+         include_docs: true,
+         descending: true,
+         limit: 8,
+         startkey: [doc.channel, doc.timestamp],
+         startkey_docid: doc._id,
+         endkey: [doc.channel, 0]
+      });
+      var view2 = couchView(URL_BASE + 'ddoc/_view/channel', {
+         include_docs: true,
+         descending: false,
+         limit: 8,
+         startkey: [$routeParams.channel, doc.timestamp],
+         startkey_docid: doc._id,
+         endkey: [$routeParams.channel, {}]
+      });
+
+      $q.all([view1.get(), view2.get()]).then(function (views) {
+         $scope.rows.push.apply($scope.rows, views[0].rows);
+         $scope.rows.shift(); // we get the same row twice
+         $scope.rows.push.apply($scope.rows, views[1].rows);
+      });
+
+      var pager1 = view1;
+      $scope.prevClick = function() {
+         // because of "descending: true" we go back towards the past,
+         // so counterintuitively use .loadAfter()
+         pager1 = pager1.loadAfter();
+         pager1.get().then(function (result) {
+            $scope.rows.push.apply($scope.rows, result.rows);
+         })
+      };
+
+      var pager2 = view2;
+      $scope.nextClick = function() {
+         pager2 = pager2.loadAfter();
+         pager2.get().then(function (result) {
+            $scope.rows.push.apply($scope.rows, result.rows);
+         })
+      };
+   })
+
+})
+
