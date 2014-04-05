@@ -12,7 +12,7 @@ angular.module('CouchDB')
       this.params = params;
       this.nextparams = $q.defer();
       this.prevparams = $q.defer();
-   };
+   }
 
    CouchView.prototype.get = function() {
       var self = this;
@@ -36,10 +36,10 @@ angular.module('CouchDB')
             }
             self.nextparams.resolve(nextparams);
             self.prevparams.resolve(prevparams);
-            return {rows: result.data.rows, last_seq: result.data.update_seq }
+            return {rows: result.data.rows, last_seq: result.data.update_seq };
          });
       });
-   }
+   };
 
    CouchView.prototype.loadAfter = function() {
       var next = new CouchView(this.url, null, this.method);
@@ -59,7 +59,7 @@ angular.module('CouchDB')
       angular.extend(params, _params);
 
       // Raise limit by 1 for pagination
-      if (params.limit) { params.limit++ };
+      if (params.limit) { params.limit++; }
       // Convert key parameters to JSON
       for (var p in params) switch (p) {
          case "key":
@@ -72,5 +72,5 @@ angular.module('CouchDB')
       return $http({method: method, url: url, params: params});
    }
 
-   return function (url, params, method) { return new CouchView(url, params, method) }
+   return function (url, params, method) { return new CouchView(url, params, method); };
 })
