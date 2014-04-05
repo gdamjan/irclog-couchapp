@@ -10,6 +10,7 @@
    <script src="script/angular.min.js"></script>
    <script src="script/angular-route.min.js"></script>
    <script src="script/ng-couch.js"></script>
+   <script src="script/ng-couch-db.js"></script>
    <script src="script/ng-couch-view.js"></script>
    <script src="script/ng-couch-changes.js"></script>
    <script src="script/ng-colorizer.js"></script>
@@ -40,13 +41,13 @@
 
 <script type="text/ng-template" id="channel-log.html">
 <div>
-  <div class="pagination" data-ng-click="prevClick()"
-         data-ng-show="cursor.nextRow">&#8593;previous history&#8593;</div>
+  <div class="pagination" data-ng-click="prevClick()">
+         &#8593;previous history&#8593;</div>
 
   <table id="irclog">
      <tbody id="2000-00-00"> <!-- FIXME THIS -->
      <tr class="date">
-        <th colspan="2"><span><a href="#/lugola/2013-07-08">2013-07-08</a></span></th>
+        <th colspan="2"><span><a href="#/lugola/2000-00-00">2000-00-00</a></span></th>
      </tr>
      <tr data-ng-repeat="row in rows | orderBy:'doc.timestamp'">
         <td class="message">
@@ -59,8 +60,8 @@
      </tr>
   </table>
 
-  <div class="pagination" data-ng-click="nextClick()"
-         data-ng-show="cursor.prevRows.length">&#8595;more history&#8595;</div>
+  <div class="pagination" data-ng-click="nextClick()">
+         &#8595;continue&#8595;</div>
 </div>
 </script>
 
