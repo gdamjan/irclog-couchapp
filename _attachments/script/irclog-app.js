@@ -12,7 +12,7 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
          templateUrl: 'channel-log.html',
          controller: 'ChannelLogsController'
       })
-      .when('/:channel/:docid', {
+      .when('/:channel/by-id/:docid', {
          templateUrl: 'channel-log.html',
          controller: 'ChannelLogAroundDocController'
       })
