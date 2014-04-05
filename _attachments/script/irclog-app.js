@@ -72,6 +72,7 @@ angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routePro
 .controller('ChannelLogAroundDocController', function ($rootScope, $scope, $routeParams,
                                                $q, couchDB, couchView) {
    $scope.channel = $rootScope.title = $routeParams.channel;
+   $scope.docid = $routeParams.docid;
    $scope.rows = [];
 
    var db = couchDB(URL_BASE + 'api');

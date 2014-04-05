@@ -34,6 +34,10 @@
   vertical-align: baseline;
 }
 
+.highlight {
+  background-color: #ffff00;
+}
+
 #irclog { width: 100% }
 #irclog tbody {
   position: relative;

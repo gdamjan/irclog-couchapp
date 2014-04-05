@@ -49,7 +49,8 @@
      <tr class="date">
         <th colspan="2"><span><a href="#/lugola/2000-00-00">2000-00-00</a></span></th>
      </tr>
-     <tr data-ng-repeat="row in rows | orderBy:'doc.timestamp'">
+     <tr data-ng-repeat="row in rows | orderBy:'doc.timestamp'"
+                  ng-class="{highlight: docid==row.id}">
         <td class="message">
            <span class="nickname" style="background-color:{{row.doc.sender | colorize}}">{{row.doc.sender}}</span>
            <span data-ng-bind="row.doc.message">the message goes here</span>
