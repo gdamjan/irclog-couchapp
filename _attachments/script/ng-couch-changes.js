@@ -67,7 +67,7 @@ angular.module('CouchDB')
                longPollFallback(url, params);
             } else {
                // FIXME: what is it???
-               console.log(src.readyState);
+               console.log(source.readyState);
                console.log(err.eventPhase);
                console.log(err);
                result.reject(err);
