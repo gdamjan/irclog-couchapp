@@ -3,4 +3,4 @@
 //
 'use strict';
 
-angular.module('CouchDB', []);
+angular.module('gdamjan.CouchDB', []);

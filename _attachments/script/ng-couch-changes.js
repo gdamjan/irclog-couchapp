@@ -8,7 +8,7 @@
  */
 "use strict";
 
-angular.module('CouchDB')
+angular.module('gdamjan.CouchDB')
 .factory('couchChanges', function($http, $q, $timeout) {
 
    function buildUrl(url, params) {
@@ -70,17 +70,14 @@ angular.module('CouchDB')
             do_fallback = false;
          });
          source.addEventListener('error', function(err) {
-            if (source.readyState == 2 && err.type == 'error' && err.eventPhase == 2) {
+            if (source.readyState == window.EventSource.CLOSED &&
+                           err.type == 'error' && err.eventPhase == 2) {
                if (do_fallback) {
                   // EventSource not supported on the backend, run the longpolled fallback
                   console.log('EventSource not supported on the backend? runing longpoll');
                   longPollFallback(url, params, result);
                }
-            } else {
-               // FIXME: what is it???
-               console.log(source.readyState);
-               console.log(err.eventPhase);
-               console.log(err);
+            } else if (source.readyState == window.EventSource.CLOSED) {
                result.reject(err);
             }
          }, false);

@@ -2,7 +2,7 @@
 
 var URL_BASE = 'https://irc.softver.org.mk/';
 
-angular.module('ircLog', ['ngRoute', 'CouchDB', 'Colorizer'], function($routeProvider) {
+angular.module('ircLog', ['ngRoute', 'gdamjan.CouchDB', 'Colorizer'], function($routeProvider) {
    $routeProvider
       .when('/', {
          templateUrl: 'home.html',

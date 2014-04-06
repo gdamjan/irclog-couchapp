@@ -3,53 +3,53 @@
 //
 'use strict';
 
-angular.module('CouchDB')
+angular.module('gdamjan.CouchDB')
 .factory('couchView', function($http, $q) {
 
    function CouchView(url, params, method) {
       this.method = method || 'GET';
       this.url    = url;
       this.params = params;
-      this.nextparams = $q.defer();
-      this.prevparams = $q.defer();
+      this._loaded = $q.defer();
    }
 
    CouchView.prototype.get = function() {
       var self = this;
       return $q.when(self.params).then(function (params) {
-         return getView(self.method, self.url, params).then(function(result) {
-            // prepare params for loadAfter and loadBefore
-            var nextparams = angular.copy(params);
-            var prevparams = angular.copy(params);
-            if (result.config.params && result.config.params.limit) {
-               if (result.data.rows.length == result.config.params.limit) {
-                  // pop the extra last row for pagination
-                  var last = result.data.rows.pop();
-                  nextparams.startkey = last.key;
-                  nextparams.startkey_docid = last.id;
-               }
+         var req = getView(self.method, self.url, params);
+         return $q.all({req: req, params: params});
+      }).then(function(all) {
+         // prepare params for loadAfter and loadBefore
+         var nextparams, prevparams;
+         if (all.req.config.params && all.req.config.params.limit) {
+            if (all.req.data.rows.length == all.req.config.params.limit) {
+               // pop the extra last row for pagination
+               var last = all.req.data.rows.pop();
+               nextparams = angular.copy(all.params);
+               nextparams.startkey = last.key;
+               nextparams.startkey_docid = last.id;
             }
-            if (result.data.rows.length > 0) {
-               var first = result.data.rows[0];
-               prevparams.endkey = first.key;
-               prevparams.endkey_docid = first.id;
-            }
-            self.nextparams.resolve(nextparams);
-            self.prevparams.resolve(prevparams);
-            return {rows: result.data.rows, last_seq: result.data.update_seq };
-         });
+         }
+         if (all.req.data.rows.length > 0) {
+            var first = all.req.data.rows[0];
+            prevparams = angular.copy(all.params);
+            prevparams.endkey = first.key;
+            prevparams.endkey_docid = first.id;
+         }
+         self._loaded.resolve({nextparams:nextparams, prevparams:prevparams});
+         return {rows: all.req.data.rows, last_seq: all.req.data.update_seq };
       });
    };
 
    CouchView.prototype.loadAfter = function() {
       var next = new CouchView(this.url, null, this.method);
-      next.params = this.nextparams.promise;
+      next.params = this._loaded.promise.then(function (obj) { return obj.nextparams});
       return next;
    };
 
    CouchView.prototype.loadBefore = function() {
       var prev = new CouchView(this.url, null, this.method);
-      prev.params = this.prevparams.promise;
+      prev.params = this._loaded.promise.then(function (obj) { return obj.prevparams});
       return prev;
    };
 

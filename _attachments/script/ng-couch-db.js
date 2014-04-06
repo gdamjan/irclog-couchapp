@@ -3,7 +3,7 @@
 //
 'use strict';
 
-angular.module('CouchDB')
+angular.module('gdamjan.CouchDB')
 .factory('couchDB', function($http) {
 
    function CouchDB(url) {
