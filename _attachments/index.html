@@ -1,60 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html data-ng-app="ircLog">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, target-densityDpi=medium-dpi">
-  <meta content='True' name='HandheldFriendly'>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, target-densityDpi=medium-dpi">
+   <meta content='True' name='HandheldFriendly'>
 
-  <title>IRClogger 2.0</title>
+   <title>IRClogger</title>
 
-  <script type="text/javascript">
-  /*    redirect _rewrite to _rewrite/                               */
-  /*    to  normalize access to relative urls through the rewriter   */
-     if (/\/_rewrite$/.test(window.location.pathname))
-        window.location.pathname = window.location.pathname + "/";
-  </script>
-
-  <link type="text/css" rel="stylesheet" href="style/style.css" />
-  <link rel="apple-touch-icon" href="images/favicon.png" />
-  <link rel="shortcut icon" type="image/png" href="images/favicon.png" />
-
-  <!-- 3rd party -->
-  <script type="text/javascript" src="script/jquery.min.js"></script>
-  <script type="text/javascript" src="script/jquery.notice.js"></script>
-  <link type="text/css" rel="stylesheet" href="style/jquery.notice.css" />
-  <script type="text/javascript" src="script/path.min.js"></script>
-
-  <!-- my stuff -->
-  <script type="text/javascript" src="script/utils.js"></script>
-  <script type="text/javascript" src="script/my-couch.js"></script>
-  <script type="text/javascript" src="script/title.alert.js"></script>
-  <script type="text/javascript" src="script/colorizer.js"></script>
-  <script type="text/javascript" src="script/irclog.js"></script>
+   <script src="script/angular.min.js"></script>
+   <script src="script/angular-route.min.js"></script>
+   <script src="script/ng-couch.js"></script>
+   <script src="script/ng-couch-db.js"></script>
+   <script src="script/ng-couch-view.js"></script>
+   <script src="script/ng-couch-changes.js"></script>
+   <script src="script/ng-colorizer.js"></script>
+   <script src="script/irclog-app.js"></script>
+   <link type="text/css" rel="stylesheet" href="style/style.css" />
+   <link rel="apple-touch-icon" href="images/favicon.png" />
+   <link rel="shortcut icon" type="image/png" href="images/favicon.png" />
 </head>
 <body>
 <header>
-  <h1>IRC logs with realtime updates</h1>
-  <div id="infobox" style="display:none">
-     <p>
-     This web page is a viewer of irclogs collected by my
-     <a href="https://github.com/gdamjan/erlang-irc-bot">erlang irc bot</a>.
-     The bot stores the logs in a CouchDB where this web-app (or couchapp)
-     is also stored. You can also <a href="http://wiki.apache.org/couchdb/Replication">replicate</a>
-     the database at https://irc.softver.org.mk/api freely.
-     </p>
-     <p>
-     The following channels are currently logged:
-     </p>
-     <ul id="channels"></ul>
-     <p>If you want your irc channel on freenode logged, contact 'damjan' on #lugola.</p>
-  </div>
+   <h1>{{ title || 'IRC logs with realtime updates' }}</h1>
 </header>
 
-<div id="container" style="display:none">
-  <div id="prev_page" class="pagination">&#8593;previous history&#8593;</div>
-  <table id="irclog"> </table>
-  <div id="next_page" class="pagination">&#8595;next history&#8595;</div>
-</div>
+<!-- placeholder for partial views -->
+<div data-ng-view=""></div>
 
 <footer>
   <div>
@@ -66,5 +37,56 @@
     style="position: absolute; top: 0; right: 20px; border: 0;"
     src="images/green-black.png"
     alt="Fork me on GitHub"></a>
+
+
+<script type="text/ng-template" id="channel-log.html">
+<div>
+  <div class="pagination" data-ng-click="prevClick()">
+         &#8593;previous history&#8593;</div>
+
+  <table id="irclog">
+     <tbody id="2000-00-00"> <!-- FIXME THIS -->
+     <tr class="date">
+        <th colspan="2"><span><a href="#/lugola/2000-00-00">2000-00-00</a></span></th>
+     </tr>
+     <tr data-ng-repeat="row in rows | orderBy:'doc.timestamp'"
+                  ng-class="{highlight: docid==row.id}">
+        <td class="message">
+           <span class="nickname" style="background-color:{{row.doc.sender | colorize}}">{{row.doc.sender}}</span>
+           <span data-ng-bind="row.doc.message">the message goes here</span>
+        </td>
+        <td class="timestamp" valign="top" width="1%">
+           <a id="{{row.id}}" href="#/{{channel}}/by-id/{{row.id}}">{{1000* row.doc.timestamp | date:'HH:mm:ss'}}</a>
+        </td>
+     </tr>
+  </table>
+
+  <div class="pagination" data-ng-click="nextClick()">
+         &#8595;continue&#8595;</div>
+</div>
+</script>
+
+
+<script type="text/ng-template" id="home.html">
+<div id="infobox">
+   <p>
+   This web page is a viewer of irclogs collected by my
+   <a href="https://github.com/gdamjan/erlang-irc-bot">erlang irc bot</a>.
+   The bot stores the logs in a CouchDB where this web-app (or couchapp)
+   is also stored. You can also <a href="http://wiki.apache.org/couchdb/Replication">replicate</a>
+   the database at https://irc.softver.org.mk/api freely.
+   </p>
+   <p>
+   The following channels are currently logged:
+   </p>
+   <ul>
+      <li data-ng-repeat="row in rows">
+      <a href="#/{{row.key[0]}}" title="Number of messages logged: {{ row.value }}">{{ row.key[0] }}</a>
+      </li>
+   </ul>
+   <p>If you want your irc channel on freenode logged, contact 'damjan' on #lugola.</p>
+</div>
+</script>
+
 </body>
 </html>

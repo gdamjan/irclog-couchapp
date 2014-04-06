@@ -11,7 +11,8 @@
  * @param opt.dl lightness variation
  * @return array of the red green and blue values of the color [r, g, b] each in the range 0-255
  */
-var $Colorizer = (function() {
+angular.module('Colorizer', [])
+.filter('colorize', function() {
    var colors = {};
 
    function Utf8Encode(string) {
@@ -86,7 +87,7 @@ var $Colorizer = (function() {
    }
 
    function getColor(nick, opt) {
-      opt = $.extend({
+      opt = angular.extend({
          h: 0.5,
           dh: 0.5,
           s: 0.65,
@@ -109,4 +110,4 @@ var $Colorizer = (function() {
       return colors[nick];
    }
 
-}());
+});
