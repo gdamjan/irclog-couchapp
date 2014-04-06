@@ -1,6 +1,6 @@
 "use strict";
 
-var URL_BASE = 'https://irc.softver.org.mk/';
+var URL_BASE = '';
 
 angular.module('ircLog', ['ngRoute', 'gdamjan.CouchDB', 'Colorizer'], function($routeProvider) {
    $routeProvider
