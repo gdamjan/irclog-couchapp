@@ -6,8 +6,9 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "webpack",
-    "build:prod": "webpack -p --env NODE_ENV=production",
-    "clean": "",
+    "watch": "webpack -w",
+    "build:prod": "NODE_ENV=production webpack -p",
+    "clean": "rm -rf dist/",
     "publish": ""
   },
   "dependencies": {
