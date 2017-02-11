@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const outputDir = __dirname + '/dist';
 const srcDir = __dirname + '/webapp';
@@ -26,10 +27,17 @@ const config = {
         use: 'ts-loader',
         exclude: /node_modules/
       },
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: 'css-loader'
+        })
+      }
     ]
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js"]
+    extensions: ['.tsx', '.ts', '.js']
   },
 
   plugins: [
@@ -37,6 +45,10 @@ const config = {
       name: 'vendors',
       filename: 'js/vendors.js',
       minChunks: Infinity
+    }),
+    new ExtractTextPlugin({
+      filename: 'css/app.css',
+      allChunks: true,
     }),
     new HtmlWebpackPlugin({template:'./app.html'})
   ],

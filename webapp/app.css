@@ -1,0 +1,94 @@
+@media screen
+  and (min-device-width: 1600px)  {
+      body { font-size: 16pt; }
+}
+
+.timestamp {
+  font-family: monospace;
+  font-size: 80%;
+  color: #808080;
+  padding-top: 6px;
+  vertical-align: top;
+}
+.timestamp a {
+  color: #808080;
+  text-decoration: none;
+}
+
+.date th {
+  color: #a0a0a0;
+  border-top: 1px dashed #a0a0a0;
+}
+
+.date span {
+  float: right;
+}
+
+.nickname {
+  color: #000000;
+  font-size: 70%;
+  padding: 1px 2px;
+  margin-left: 2px;
+}
+
+.message {
+  font-size: 100%;
+  padding: 0;
+}
+.message span {
+  vertical-align: baseline;
+}
+
+#irclog tbody {
+  position: relative;
+  z-index: 2;
+}
+#irclog tbody a {
+  color: #808080;
+}
+
+#notifications * {
+  font-size: 90%;
+  color: #ddd;
+  text-decoration: none;
+}
+
+.pagination { text-align: center; text-decoration: none; color:#808080; cursor:pointer }
+
+#tagcloud li {
+  float: left;
+  list-style: none;
+  padding-left: 12px;
+}
+#channels li {
+  list-style-type: square;
+}
+
+a:link.tag, a:visited.tag { border: 1px dashed #ccc; background: #ccc; text-decoration: none; }
+a:hover.tag { border: 1px solid #eee; }
+
+h1 {
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+  color: #444444;
+}
+
+header {
+  margin: 6px;
+}
+
+footer {
+  border-top: 1px dashed #aaaaaa;
+  margin-top: 1em;
+  background-color: #eeeeee;
+}
+footer div { margin: 8px 6px 0; padding-bottom: 0.4em;}
+footer a { text-decoration: none; color: #555555; }
+footer a:hover { text-decoration: underline; color: #152C5C }
+
+/* tr:hover { background-color: #eee; } */
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
