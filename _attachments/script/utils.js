@@ -23,7 +23,7 @@ var $Utils = function(document, window, undefined) {
       function autolinkLabel(text, limit) {
           if (!limit){ return text; }
           if (text.length > limit) {
-              return text.substr(0, limit - 3) + '...';
+              return text.substr(0, limit) + '…';
           }
           return text;
       }
@@ -32,7 +32,7 @@ var $Utils = function(document, window, undefined) {
       if(!options.limit) options.limit = 50;
       if(!options.tagFill) options.tagFill = '';
 
-      var regex = /((http\:\/\/|https\:\/\/|ftp\:\/\/)|(www\.))+(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/gi;
+      var regex = /((http\:\/\/|https\:\/\/|ftp\:\/\/)|(www\.))+(\w+:{0,1}\w*@)?([^/\s:]+)(:[0-9]+)?([\w#!:.?+=&%@!\-\/])*/gi;
 
       return text.replace(regex, function(value) {
          // value = value.toLowerCase(); ?? misa|_
@@ -117,6 +117,11 @@ var $Utils = function(document, window, undefined) {
        var tzM = exports.pad(tz % 60);
        var tzStr = (tz<0 ? '-':'+') + tzH + ':' + tzM;
        return tzStr;
+    },
+
+    formatMeMessage: function(message, color) {
+       var span = '<span class="nickname" style="background-color:' + color + '">$1</span>';
+       return message.replace(/^\x01ACTION (.*)\x01/g, span);
     }
   }
   return exports;
