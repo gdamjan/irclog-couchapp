@@ -51,4 +51,4 @@ msgDecoder =
 
 dateDecoder : Decode.Decoder Date.Date
 dateDecoder =
-    Decode.map Date.fromTime Decode.float
+    Decode.map (\t -> Date.fromTime (t*1000)) Decode.float
