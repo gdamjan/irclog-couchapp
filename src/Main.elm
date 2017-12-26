@@ -1,26 +1,27 @@
 module Main exposing (..)
 
-import Html.Events exposing (onClick)
-import Html.Attributes exposing (..)
-import Html exposing (..)
+import Html exposing (program, Html)
 
+import Views
 import Couch
 import Models exposing (..)
 
-
+main : Program Never Model Msg
 main =
-  Html.program {
+  program {
     init = init "lugola",
     view = view,
     update = update,
     subscriptions = subscriptions
   }
 
+
 init : String -> (Model, Cmd Msg)
 init channel =
  ( Model channel []
  , Couch.getLast100Messages channel
  )
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -39,26 +40,9 @@ update msg model =
 
 view: Model -> Html Msg
 view model =
-  div [(class "main")] [
-    header [] [text ("irc logs for #" ++ model.channelName)],
-    button [ onClick Decrement ] [ text "-" ],
-    irctable [] (List.reverse model.messages),
-    button [ onClick Increment ] [ text "+" ]
-  ]
+  Views.displayChannelLog model
 
 
-irctable: List (Html.Attribute Msg) -> IrcMessages -> Html Msg
-irctable attrs messages =
-  Html.table attrs (List.map singlerow messages)
-
-singlerow : IrcMessage -> Html Msg
-singlerow message =
-  tr [] [
-    td [] [text message.sender],
-    td [] [text message.message],
-    td [] [text (toString message.timestamp)]
-  ]
-
-subscriptions : Model -> Sub Msg
+subscriptions : Model -> Sub msg
 subscriptions model =
     Sub.none
