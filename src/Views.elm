@@ -12,7 +12,7 @@ displayChannelLog model =
     div [] [
       header model.channelName,
       button [ onClick Decrement ] [ text "-" ],
-      irctable [] (List.reverse model.messages),
+      irctable [] model.messages,
       button [ onClick Increment ] [ text "+" ],
       footer
     ]

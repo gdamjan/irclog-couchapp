@@ -28,11 +28,19 @@ update msg model =
   case msg of
     ChannelViewResult (Ok viewResult) ->
       (
-        { model | messages = viewResult.rows },
-        Cmd.none
+        { model | messages = (List.reverse viewResult.rows) },
+        Couch.getChanges model.channelName viewResult.update_seq
+      )
+
+    ChannelChanges (Ok changesResult) ->
+      (
+        { model | messages = (List.append model.messages changesResult.results)},
+        Couch.getChanges model.channelName changesResult.last_seq
       )
 
     ChannelViewResult (Err _) -> -- try later?
+      (model, Cmd.none)
+    ChannelChanges (Err _) -> -- maybe just log
       (model, Cmd.none)
     _ ->
       (model, Cmd.none)
