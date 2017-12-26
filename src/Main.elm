@@ -1,6 +1,9 @@
 module Main exposing (..)
 
 import Html exposing (program, Html)
+import Process
+import Task
+import Time
 
 import Views
 import Couch
@@ -12,13 +15,13 @@ main =
     init = init "lugola",
     view = view,
     update = update,
-    subscriptions = subscriptions
+    subscriptions = \_ -> Sub.none
   }
 
 
 init : String -> (Model, Cmd Msg)
 init channel =
- ( Model channel []
+ ( Model channel [] ""
  , Couch.getLast100Messages channel
  )
 
@@ -28,20 +31,31 @@ update msg model =
   case msg of
     ChannelViewResult (Ok viewResult) ->
       (
-        { model | messages = (List.reverse viewResult.rows) },
-        Couch.getChanges model.channelName viewResult.update_seq
+        { model
+        | messages = List.reverse viewResult.rows
+        , last_seq = viewResult.update_seq
+        } -- Task.perform identity (Task.succeed DoChanges) ??
+        , Couch.getChanges model.channelName viewResult.update_seq
       )
 
     ChannelChanges (Ok changesResult) ->
       (
-        { model | messages = (List.append model.messages changesResult.results)},
-        Couch.getChanges model.channelName changesResult.last_seq
+        { model
+        | messages = List.append model.messages changesResult.results
+        , last_seq = changesResult.last_seq
+        } -- Task.perform identity (Task.succeed DoChanges) ??
+        , Couch.getChanges model.channelName changesResult.last_seq
       )
+
+    DoChanges ->
+      (model, Couch.getChanges model.channelName model.last_seq)
 
     ChannelViewResult (Err _) -> -- try later?
       (model, Cmd.none)
-    ChannelChanges (Err _) -> -- maybe just log
-      (model, Cmd.none)
+
+    ChannelChanges (Err _) -> -- repeat after a while
+      (model, delay (5 * Time.second) DoChanges)
+
     _ ->
       (model, Cmd.none)
 
@@ -51,6 +65,7 @@ view model =
   Views.displayChannelLog model
 
 
-subscriptions : Model -> Sub msg
-subscriptions model =
-    Sub.none
+delay : Time.Time -> msg -> Cmd msg
+delay time msg =
+  Process.sleep time
+  |> Task.perform (\_ -> msg)

@@ -4,7 +4,7 @@ import Date exposing (Date)
 import Http exposing (Error)
 import Json.Decode as Decode
 
-type alias Model = { channelName: String, messages: IrcMessages }
+type alias Model = { channelName: String, messages: IrcMessages, last_seq: String }
 
 type alias IrcMessage = { timestamp: Date, sender: String, channel: String, message: String }
 type alias IrcMessages = List IrcMessage
@@ -14,6 +14,7 @@ type alias ChangesResult = { results: IrcMessages, last_seq: String }
 type Msg =
   ChannelViewResult (Result Http.Error ViewResult)
   | ChannelChanges (Result Http.Error ChangesResult)
+  | DoChanges
   | Increment
   | Decrement
 
