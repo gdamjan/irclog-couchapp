@@ -12,55 +12,62 @@ import Models exposing (..)
 
 main : Program Never Model Msg
 main =
-  program {
-    init = init "lugola",
-    view = view,
-    update = update,
-    subscriptions = \_ -> Sub.none
-  }
+    program {
+        init = init "lugola",
+        view = view,
+        update = update,
+        subscriptions = \_ -> Sub.none
+    }
 
 
 init : String -> (Model, Cmd Msg)
 init channel =
- ( Model channel [] ""
- , Couch.getLast100Messages channel
- )
-
+    ( Model channel [] "",
+      Task.perform identity (Task.succeed DoInitialView)
+    )
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ChannelViewResult (Ok viewResult) ->
+      ChannelViewResult (Ok viewResult) ->
+          onChannelViewResult model viewResult
+
+      ChannelChanges (Ok changesResult) ->
+          onChannelChangesResult model changesResult
+
+      DoInitialView ->
+          (model, Couch.getLast100Messages model.channelName)
+
+      DoChanges ->
+          (model, Couch.getChanges model.channelName model.last_seq)
+
+      ChannelViewResult (Err _) ->
+          (model, delay (20 * Time.second) DoInitialView) -- backoff?
+
+      ChannelChanges (Err _) ->
+          (model, delay (5 * Time.second) DoChanges) -- backoff?
+
+      _ ->
+          (model, Cmd.none)
+
+onChannelViewResult model viewResult =
+    let messages = List.reverse viewResult.rows
+        last_seq = viewResult.update_seq
+    in
       (
-        { model
-        | messages = List.reverse viewResult.rows
-        , last_seq = viewResult.update_seq
-        } -- Task.perform identity (Task.succeed DoChanges) ??
-        , Couch.getChanges model.channelName viewResult.update_seq
+        { model | messages = messages, last_seq = last_seq },
+        Task.perform identity (Task.succeed DoChanges)
       )
 
-    ChannelChanges (Ok changesResult) ->
-        let results = List.sortBy (\doc -> Date.toTime doc.timestamp) changesResult.results
-        in
-            (
-              { model
-              | messages = List.append model.messages results
-              , last_seq = changesResult.last_seq
-              } -- Task.perform identity (Task.succeed DoChanges) ??
-              , Couch.getChanges model.channelName changesResult.last_seq
-            )
-
-    DoChanges ->
-      (model, Couch.getChanges model.channelName model.last_seq)
-
-    ChannelViewResult (Err _) -> -- try later?
-      (model, Cmd.none)
-
-    ChannelChanges (Err _) -> -- repeat after a while
-      (model, delay (5 * Time.second) DoChanges)
-
-    _ ->
-      (model, Cmd.none)
+onChannelChangesResult model changesResult =
+    let results = List.sortBy (\doc -> Date.toTime doc.timestamp) changesResult.results
+        messages = List.append model.messages results
+        last_seq = changesResult.last_seq
+    in
+      (
+        { model | messages = messages, last_seq = last_seq },
+        Task.perform identity (Task.succeed DoChanges)
+      )
 
 
 view: Model -> Html Msg

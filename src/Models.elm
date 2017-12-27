@@ -15,6 +15,7 @@ type Msg =
   ChannelViewResult (Result Http.Error ViewResult)
   | ChannelChanges (Result Http.Error ChangesResult)
   | DoChanges
+  | DoInitialView
   | LoadHistory
 
 -- Json decoder for the models
