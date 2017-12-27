@@ -1,7 +1,9 @@
 module Helpers exposing (.. )
 
 import Http exposing (encodeUri)
-
+import Process
+import Task
+import Time
 
 url : String -> List (String,String) -> String
 url baseUrl args =
@@ -18,3 +20,9 @@ queryPair (key,value) =
 queryEscape : String -> String
 queryEscape string =
   String.join "+" (String.split "%20" (Http.encodeUri string))
+
+
+delay : Time.Time -> msg -> Cmd msg
+delay time msg =
+  Process.sleep time
+  |> Task.perform (\_ -> msg)

@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Html exposing (program, Html)
-import Process
 import Task
 import Time
 import Date
@@ -9,13 +8,15 @@ import Date
 import Views
 import Couch
 import Models exposing (..)
+import Helpers exposing (delay)
+
 
 main : Program Never Model Msg
 main =
     program {
         init = init "lugola",
-        view = view,
         update = update,
+        view = Views.displayChannelLog,
         subscriptions = \_ -> Sub.none
     }
 
@@ -68,14 +69,3 @@ onChannelChangesResult model changesResult =
         { model | messages = messages, last_seq = last_seq },
         Task.perform identity (Task.succeed DoChanges)
       )
-
-
-view: Model -> Html Msg
-view model =
-  Views.displayChannelLog model
-
-
-delay : Time.Time -> msg -> Cmd msg
-delay time msg =
-  Process.sleep time
-  |> Task.perform (\_ -> msg)
