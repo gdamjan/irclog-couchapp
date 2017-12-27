@@ -15,8 +15,7 @@ type Msg =
   ChannelViewResult (Result Http.Error ViewResult)
   | ChannelChanges (Result Http.Error ChangesResult)
   | DoChanges
-  | Increment
-  | Decrement
+  | LoadHistory
 
 -- Json decoder for the models
 
