@@ -4,6 +4,7 @@ import Html exposing (program, Html)
 import Process
 import Task
 import Time
+import Date
 
 import Views
 import Couch
@@ -39,13 +40,15 @@ update msg model =
       )
 
     ChannelChanges (Ok changesResult) ->
-      (
-        { model
-        | messages = List.append model.messages changesResult.results
-        , last_seq = changesResult.last_seq
-        } -- Task.perform identity (Task.succeed DoChanges) ??
-        , Couch.getChanges model.channelName changesResult.last_seq
-      )
+        let results = List.sortBy (\doc -> Date.toTime doc.timestamp) changesResult.results
+        in
+            (
+              { model
+              | messages = List.append model.messages results
+              , last_seq = changesResult.last_seq
+              } -- Task.perform identity (Task.succeed DoChanges) ??
+              , Couch.getChanges model.channelName changesResult.last_seq
+            )
 
     DoChanges ->
       (model, Couch.getChanges model.channelName model.last_seq)
