@@ -36,7 +36,7 @@ nickname sender =
             ("margin", "0 6px 0 2px")
         ]
     in
-        span [(style css)] [text sender]
+        span [style css] [text sender]
 
 ircMessage message =
     span [] [text message] -- FIXME: autolink, simple markdown (bold, italic, monospace), emojis
@@ -56,7 +56,7 @@ timestamp row =
         iso8601 = "FIXME-xyz"
         link = "#/" ++ row.channel ++ "/" ++ iso8601
     in
-        a [(style css), (href link), (id iso8601)] [text timeString]
+        a [style css, href link, id iso8601] [text timeString]
 
 historyButton msg =
     div [style [("text-align", "center")]] [button [ onClick msg ] [ text "load some history" ]]
@@ -68,7 +68,7 @@ header channel =
             ("padding", "6px")
         ]
     in
-        Html.header [(style css)] [
+        Html.header [style css] [
             h1 [] [text ("irc logs for #" ++ channel)]
         ]
 
@@ -84,6 +84,6 @@ footer =
             ("color", "#555555")
         ]
     in
-        Html.footer [(style footerCss)] [
+        Html.footer [style footerCss, id "footer"] [
             a [href "https://irc.softver.org.mk/", style linkCss] [text "irclog home page"]
         ]
