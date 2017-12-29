@@ -6,8 +6,13 @@ import Json.Decode as Decode
 
 type alias Model = { channelName: String, messages: IrcMessages, last_seq: String }
 
-type alias IrcMessage = { timestamp: Date, sender: String, channel: String, message: String }
+type EventData =
+    TopicChange String
+    | Message String
+
+type alias IrcMessage = { timestamp: Date, sender: String, channel: String, event: EventData }
 type alias IrcMessages = List IrcMessage
+
 type alias ViewResult = { rows: IrcMessages, update_seq: String, total_rows: Int, offset: Int }
 type alias ChangesResult = { results: IrcMessages, last_seq: String }
 
@@ -33,22 +38,31 @@ type Msg =
 viewResultDecoder : Decode.Decoder ViewResult
 viewResultDecoder =
     Decode.map4 ViewResult
-      (Decode.field "rows" rowsDecoder)
-      (Decode.field "update_seq" Decode.string)
-      (Decode.field "total_rows" Decode.int)
-      (Decode.field "offset" Decode.int)
+        (Decode.field "rows" rowsDecoder)
+        (Decode.field "update_seq" Decode.string)
+        (Decode.field "total_rows" Decode.int)
+        (Decode.field "offset" Decode.int)
 
-rowsDecoder : Decode.Decoder (List IrcMessage)
+rowsDecoder : Decode.Decoder IrcMessages
 rowsDecoder =
-    Decode.list (Decode.field "doc" msgDecoder)
+    Decode.list (Decode.field "doc" rowDecoder)
 
-msgDecoder : Decode.Decoder IrcMessage
-msgDecoder =
+rowDecoder : Decode.Decoder IrcMessage
+rowDecoder =
     Decode.map4 IrcMessage
-      (Decode.field "timestamp" dateDecoder)
-      (Decode.field "sender" Decode.string)
-      (Decode.field "channel" Decode.string)
-      (Decode.field "message" Decode.string)
+        (Decode.field "timestamp" dateDecoder)
+        (Decode.field "sender" Decode.string)
+        (Decode.field "channel" Decode.string)
+        (Decode.oneOf [msgDecoder, topicDecoder])
+
+msgDecoder : Decode.Decoder EventData
+msgDecoder =
+    Decode.field "message" (Decode.map Message Decode.string)
+
+topicDecoder : Decode.Decoder EventData
+topicDecoder =
+    Decode.field "topic" (Decode.map TopicChange Decode.string)
+
 
 dateDecoder : Decode.Decoder Date.Date
 dateDecoder =
@@ -71,5 +85,5 @@ dateDecoder =
 changesDecoder : Decode.Decoder ChangesResult
 changesDecoder =
     Decode.map2 ChangesResult
-      (Decode.field "results" rowsDecoder)
-      (Decode.field "last_seq" Decode.string)
+        (Decode.field "results" rowsDecoder)
+        (Decode.field "last_seq" Decode.string)
