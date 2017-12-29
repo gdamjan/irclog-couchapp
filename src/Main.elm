@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (program)
 import Time
 import Date
-
+import Http
 
 import Views
 import Couch
@@ -20,22 +20,22 @@ init channel =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-      ChannelViewResult (Ok viewResult) ->
+      OnChannelViewResult (Ok viewResult) ->
           onChannelViewResult model viewResult
 
-      ChannelChanges (Ok changesResult) ->
+      OnChannelChanges (Ok changesResult) ->
           onChannelChangesResult model changesResult
 
       DoInitialView ->
-          (model, Couch.getLast100Messages model.channelName)
+          (model, Http.send OnChannelViewResult (Couch.getLast100Messages model.channelName))
 
       DoChanges ->
-          (model, Couch.getChanges model.channelName model.last_seq)
+          (model, Http.send OnChannelChanges (Couch.getChanges model.channelName model.last_seq))
 
-      ChannelViewResult (Err _) ->
+      OnChannelViewResult (Err _) ->
           (model, delay (20 * Time.second) DoInitialView) -- backoff?
 
-      ChannelChanges (Err _) ->
+      OnChannelChanges (Err _) ->
           (model, delay (5 * Time.second) DoChanges) -- backoff?
 
       _ ->

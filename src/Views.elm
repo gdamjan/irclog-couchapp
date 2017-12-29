@@ -11,7 +11,7 @@ displayChannelLog : Model -> Html Msg
 displayChannelLog model =
     div [] [
         pageHeader model.channelName,
-        historyButton LoadHistory,
+        historyButton DoLoadHistory,
         ircLogTable model.messages,
         pageFooter
     ]

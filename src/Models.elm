@@ -17,11 +17,11 @@ type alias ViewResult = { rows: IrcMessages, update_seq: String, total_rows: Int
 type alias ChangesResult = { results: IrcMessages, last_seq: String }
 
 type Msg =
-  ChannelViewResult (Result Http.Error ViewResult)
-  | ChannelChanges (Result Http.Error ChangesResult)
+  OnChannelViewResult (Result Http.Error ViewResult)
+  | OnChannelChanges (Result Http.Error ChangesResult)
   | DoChanges
   | DoInitialView
-  | LoadHistory
+  | DoLoadHistory
 
 -- Json decoder for the models
 
