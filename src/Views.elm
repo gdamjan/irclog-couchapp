@@ -10,22 +10,30 @@ import Models exposing (..)
 displayChannelLog : Model -> Html Msg
 displayChannelLog model =
     div [] [
-        header model.channelName,
+        pageHeader model.channelName,
         historyButton LoadHistory,
         ircLogTable model.messages,
-        footer
+        pageFooter
     ]
+
 
 ircLogTable: IrcMessages -> Html msg
 ircLogTable messages =
-    Html.table [style [("width","100%")]] (List.map singlerow messages) -- FIXME: groupBy and tbody
+    -- FIXME: groupBy and tbody
+    messages
+    |> List.filterMap tableRow
+    |> Html.table [style [("width","100%")]]
 
-singlerow : IrcMessage -> Html msg
-singlerow row =
-    tr [] [
-        td [style [("vertical-align", "baseline")]] [nickname row.sender, ircMessage row.message],
-        td [style [("vertical-align", "top")]] [timestamp row]
-    ]
+
+tableRow row =
+    case row.event of
+        Message message ->
+            let cell1 = td [style [("vertical-align", "baseline")]] [nickname row.sender, messageText message]
+                cell2 = td [style [("vertical-align", "top")]] [messageTime row.timestamp row.channel]
+            in
+                Just <| tr [] [cell1, cell2]
+        TopicChange _ ->
+            Nothing
 
 nickname sender =
     let css = [
@@ -38,10 +46,10 @@ nickname sender =
     in
         span [style css] [text sender]
 
-ircMessage message =
+messageText message =
     span [] [text message] -- FIXME: autolink, simple markdown (bold, italic, monospace), emojis
 
-timestamp row =
+messageTime timestamp channel =
     let css = [
             ("font-size", "80%"),
             ("font-family", "monospace"),
@@ -49,19 +57,19 @@ timestamp row =
             ("color", "#808080")
         ]
         timeString = String.join ":" [
-            (Date.hour row.timestamp |> toString |> String.padLeft 2 '0'),
-            (Date.minute row.timestamp |> toString |> String.padLeft 2 '0'),
-            (Date.second row.timestamp |> toString |> String.padLeft 2 '0')
+            (Date.hour timestamp |> toString |> String.padLeft 2 '0'),
+            (Date.minute timestamp |> toString |> String.padLeft 2 '0'),
+            (Date.second timestamp |> toString |> String.padLeft 2 '0')
         ]
         iso8601 = "FIXME-xyz"
-        link = "#/" ++ row.channel ++ "/" ++ iso8601
+        link = "#/" ++ channel ++ "/" ++ iso8601
     in
         a [style css, href link, id iso8601] [text timeString]
 
 historyButton msg =
     div [style [("text-align", "center")]] [button [ onClick msg ] [ text "load some history" ]]
 
-header channel =
+pageHeader channel =
     let css = [
             ("text-shadow", "1px 1px 4px rgba(0, 0, 0, 0.3)"),
             ("color", "#444444"),
@@ -72,7 +80,7 @@ header channel =
             h1 [] [text ("irc logs for #" ++ channel)]
         ]
 
-footer =
+pageFooter =
     let footerCss = [
             ("border-top", "1px dashed #aaaaaa"),
             ("margin-top", "1.5em"),
