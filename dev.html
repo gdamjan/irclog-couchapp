@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>irclog</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, target-densityDpi=medium-dpi">
+  <meta content='True' name='HandheldFriendly'>
+  <!--script src="./elm.compiled.js"></script-->
+  <script src="/_compile/src/Main.elm"></script>
+  <style>body, h1 { margin: 0; padding: 0 }</style>
+</head>
+<body>
+<script>
+  var app = Elm.Main.fullscreen();
+  app.ports.title.subscribe(function(title) {
+    document.title = title;
+  });
+</script>
+<a href="https://github.com/gdamjan/irclog-couchapp/tree/elm"><img
+    style="position: absolute; top: 0; right: 20px; border: 0;"
+    src="./images/green-black.png"
+    alt="Fork me on GitHub"></a>
+</body>
+</html>
