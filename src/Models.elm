@@ -4,7 +4,8 @@ import Date exposing (Date)
 import Http exposing (Error)
 import Navigation exposing (Location)
 
-type alias Model = { channelName: String, messages: IrcMessages, last_seq: String, route: Route }
+type alias AppModel = { route: Route, channel: Maybe ChannelModel }
+type alias ChannelModel = { channelName: String, messages: IrcMessages }
 
 type EventData =
     TopicChange String
@@ -17,11 +18,10 @@ type alias ViewResult = { rows: IrcMessages, update_seq: String, total_rows: Int
 type alias ChangesResult = { results: IrcMessages, last_seq: String }
 
 type Msg =
-  OnChannelViewResult (Result Http.Error ViewResult)
-  | OnChannelChanges (Result Http.Error ChangesResult)
+  OnChannelViewResult String (Result Http.Error ViewResult)
+  | OnChannelChanges String (Result Http.Error ChangesResult)
   | OnLocationChange Location
-  | DoChanges
-  | DoInitialView
+  | DoChanges String String
   | DoLoadHistory
 
 type Route

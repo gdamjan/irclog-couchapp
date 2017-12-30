@@ -12,79 +12,88 @@ import Routing exposing (parseLocation)
 import Helpers exposing (delay)
 
 
-init : Location -> ( Model, Cmd Msg )
+init : Location -> ( AppModel, Cmd Msg )
 init location =
-    let initialModel = { route=HomeRoute, messages=[], channelName="", last_seq="" } -- this is bad, perhaps move to Maybe/Nothing
+    let initialModel = AppModel HomeRoute Nothing
     in
         onLocationChange initialModel location
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> AppModel -> (AppModel, Cmd Msg)
 update msg model =
     case msg of
         OnLocationChange location ->
             onLocationChange model location
 
-        OnChannelViewResult (Ok viewResult) ->
-            onChannelViewResult model viewResult
+        OnChannelViewResult channelName (Ok viewResult) ->
+            let (chan, last_seq) = createChannel channelName viewResult
+                newmodel = { model | channel=Just chan }
+            in
+                update (DoChanges channelName last_seq) newmodel
 
-        OnChannelChanges (Ok changesResult) ->
-            onChannelChangesResult model changesResult
+        OnChannelChanges channelName (Ok changesResult) ->
+            case model.channel of
+                Nothing ->
+                    (model, Cmd.none)
+                Just chan ->
+                    let
+                        (chan_, last_seq) = updateChannel chan changesResult
+                        newmodel = { model | channel=Just chan_ }
+                    in
+                        update (DoChanges channelName last_seq) newmodel
 
-        DoInitialView ->
-            (model, Http.send OnChannelViewResult (Couch.getLast100Messages model.channelName))
+        DoChanges channelName last_seq ->
+            (model, Http.send (OnChannelChanges channelName) (Couch.getChanges channelName last_seq))
 
-        DoChanges ->
-            (model, Http.send OnChannelChanges (Couch.getChanges model.channelName model.last_seq))
+        OnChannelViewResult _ (Err _) ->
+            (model, Cmd.none) -- delay (20 * Time.second) DoInitialView) -- backoff?
 
-        OnChannelViewResult (Err _) ->
-            (model, delay (20 * Time.second) DoInitialView) -- backoff?
+        OnChannelChanges _ (Err _) ->
+            (model, Cmd.none) -- delay (5 * Time.second) DoChanges) -- backoff?
 
-        OnChannelChanges (Err _) ->
-            (model, delay (5 * Time.second) DoChanges) -- backoff?
-
-        _ ->
+        DoLoadHistory ->
             (model, Cmd.none)
 
 
-onLocationChange : Model -> Location -> (Model, Cmd Msg)
+
+onLocationChange : AppModel -> Location -> (AppModel, Cmd Msg)
 onLocationChange model location =
     -- FIXME: how do I stop the ongoing longpoll request - also need to ignore any changes results if they come by in the mean time
     let
         newRoute = parseLocation location
-        newmodel = { model | route = newRoute }
+        newmodel = AppModel newRoute Nothing
     in
         case newRoute of
             HomeRoute ->
                 (newmodel, Cmd.none)
-            ChannelRoute channel ->
-                update DoInitialView {newmodel | channelName = channel}
+
+            ChannelRoute channelName ->
+                (newmodel, Http.send (OnChannelViewResult channelName) (Couch.getLast100Messages channelName))
+
             ChannelDateTimeRoute _ _->
                 (newmodel, Cmd.none)
+
             NotFoundRoute ->
                 (newmodel, Cmd.none)
 
 
-onChannelViewResult : Model -> ViewResult -> (Model, Cmd Msg)
-onChannelViewResult model viewResult =
+createChannel : String -> ViewResult -> (ChannelModel, String)
+createChannel channelName viewResult =
     let messages = List.reverse viewResult.rows
         last_seq = viewResult.update_seq
-        newmodel = {model | messages = messages, last_seq = last_seq}
     in
-        update DoChanges newmodel
+        (ChannelModel channelName messages, last_seq)
 
-
-onChannelChangesResult : Model -> ChangesResult -> (Model, Cmd Msg)
-onChannelChangesResult model changesResult =
+updateChannel : ChannelModel -> ChangesResult -> (ChannelModel, String)
+updateChannel chan changesResult =
     let results = List.sortBy (\doc -> Date.toTime doc.timestamp) changesResult.results
-        messages = List.append model.messages results
+        messages = List.append chan.messages results
         last_seq = changesResult.last_seq
-        newmodel = { model | messages = messages, last_seq = last_seq }
     in
-        update DoChanges newmodel
+        ({ chan | messages = messages }, last_seq)
 
 
-main : Program Never Model Msg
+main : Program Never AppModel Msg
 main =
     Navigation.program OnLocationChange {
         init = init,

@@ -7,26 +7,34 @@ import Date
 
 import Models exposing (..)
 
-mainView : Model -> Html Msg
+mainView : AppModel -> Html Msg
 mainView model =
     case model.route of
         HomeRoute ->
             div [] [text "Hello World!"]
-        ChannelRoute channel ->
-            displayChannelLog model
+        ChannelRoute channelName ->
+            displayChannelLog channelName model.channel
         ChannelDateTimeRoute _ _ ->
             div [] [text "Not Implemented"]
         NotFoundRoute ->
             div [] [text "Not Found"]
 
-displayChannelLog : Model -> Html Msg
-displayChannelLog model =
+displayChannelLog : String -> Maybe ChannelModel -> Html Msg
+displayChannelLog channelName channel =
     div [] [
-        pageHeader model.channelName,
+        pageHeader channelName,
         historyButton DoLoadHistory,
-        ircLogTable model.messages,
+        maybeLoading channel,
         pageFooter
     ]
+
+maybeLoading : Maybe ChannelModel -> Html msg
+maybeLoading channel =
+    case channel of
+        Nothing ->
+            text "Loading…"
+        Just chan ->
+            ircLogTable chan.messages
 
 
 ircLogTable: IrcMessages -> Html msg
