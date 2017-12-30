@@ -1,0 +1,15 @@
+- groupBy + tbody
+- handle topic change in results ✓
+- permalinks
+- navigation (kind of)
+  · different channel
+  · point in history
+- colors
+- fancy messages
+- search component
+- online status / latency
+  - timeout of Http.send (watchdog task?)
+- scroll to bottom
+
+
+How does ELM scale - component wise? Every change must be reflected in the model and update function :/
