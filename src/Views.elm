@@ -7,6 +7,18 @@ import Date
 
 import Models exposing (..)
 
+mainView : Model -> Html Msg
+mainView model =
+    case model.route of
+        HomeRoute ->
+            div [] [text "Hello World!"]
+        ChannelRoute channel ->
+            displayChannelLog model
+        ChannelDateTimeRoute _ _ ->
+            div [] [text "Not Implemented"]
+        NotFoundRoute ->
+            div [] [text "Not Found"]
+
 displayChannelLog : Model -> Html Msg
 displayChannelLog model =
     div [] [

@@ -2,8 +2,9 @@ module Models exposing (..)
 
 import Date exposing (Date)
 import Http exposing (Error)
+import Navigation exposing (Location)
 
-type alias Model = { channelName: String, messages: IrcMessages, last_seq: String }
+type alias Model = { channelName: String, messages: IrcMessages, last_seq: String, route: Route }
 
 type EventData =
     TopicChange String
@@ -18,6 +19,13 @@ type alias ChangesResult = { results: IrcMessages, last_seq: String }
 type Msg =
   OnChannelViewResult (Result Http.Error ViewResult)
   | OnChannelChanges (Result Http.Error ChangesResult)
+  | OnLocationChange Location
   | DoChanges
   | DoInitialView
   | DoLoadHistory
+
+type Route
+    = HomeRoute
+    | ChannelRoute String
+    | ChannelDateTimeRoute String Date
+    | NotFoundRoute
