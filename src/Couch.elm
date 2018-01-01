@@ -1,6 +1,7 @@
 module Couch exposing (..)
 
 import Http
+import Time
 import Json.Decode as Decode
 import Date exposing (Date)
 
@@ -34,14 +35,22 @@ getChanges channel since =
     let
         changesUrl = url "https://irc.softver.org.mk/api/_changes" [
             ("feed","longpoll"),
-            ("heartbeat", "true"),
+            ("timeout", "90000"),
             ("include_docs", "true"),
             ("filter","log/channel"),
             ("channel", channel),
             ("since", since)
         ]
     in
-        Http.get changesUrl changesDecoder
+        Http.request {
+            method = "GET",
+            headers = [Http.header "Accept" "application/json"],
+            url = changesUrl,
+            body = Http.emptyBody,
+            expect = Http.expectJson changesDecoder,
+            timeout = Just (100 * Time.second),
+            withCredentials = False
+        }
 
 
 -- Json decoder for the CouchDb responses
