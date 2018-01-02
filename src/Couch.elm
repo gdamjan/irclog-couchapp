@@ -9,11 +9,11 @@ import Helpers exposing (url)
 import Models exposing (..)
 
 
-getLastMessages : String -> Int -> Http.Request ViewResult
-getLastMessages channel num =
+getChannelLog : String -> Int -> String -> String -> Http.Request ViewResult
+getChannelLog channel num start end =
     let
-        startkey = "[\"" ++ channel ++ "\", {}]"
-        endkey = "[\"" ++ channel ++ "\", 0]"
+        startkey = "[\"" ++ channel ++ "\"," ++ start ++ "]"
+        endkey = "[\"" ++ channel ++ "\"," ++ end  ++ "]"
         viewUrl = url "https://irc.softver.org.mk/ddoc/_view/channel" [
             ("startkey", startkey),
             ("endkey", endkey),
@@ -25,6 +25,10 @@ getLastMessages channel num =
         ]
     in
         Http.get viewUrl viewResultDecoder
+
+getLastMessages : String -> Int -> Http.Request ViewResult
+getLastMessages channel num =
+    getChannelLog channel num "{}" "0"
 
 getLast100Messages channel =
     getLastMessages channel 100
