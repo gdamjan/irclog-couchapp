@@ -4,39 +4,41 @@ import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, href, id, colspan, align)
 import Html exposing (..)
 import Date
+import RemoteData
 
 import Models exposing (..)
 import Helpers exposing (groupWith)
 
 
-mainView : AppModel -> Html Msg
-mainView model =
-    case model.route of
-        HomeRoute ->
-            div [] [text "Hello World!"]
-        ChannelRoute channelName ->
-            displayChannelLog channelName model.channel
-        ChannelDateTimeRoute _ _ ->
-            div [] [text "Not Implemented"]
-        NotFoundRoute ->
-            div [] [text "Not Found"]
+homePage model =
+    div [] [text "Hello World!"]
 
-displayChannelLog : String -> Maybe ChannelModel -> Html Msg
-displayChannelLog channelName channel =
+notFoundPage =
+    div [] [text "Not Found"]
+
+channelLogAt channelName d =
+    div [] [text (toString d)]
+
+recentChannelLog : String -> AppModel -> Html Msg
+recentChannelLog channelName model =
     div [] [
         pageHeader ("irc logs for #" ++ channelName),
         historyButton DoLoadHistory,
-        maybeLoading channel,
+        maybeLoading model,
         pageFooter
     ]
 
-maybeLoading : Maybe ChannelModel -> Html msg
-maybeLoading channel =
-    case channel of
-        Nothing ->
+maybeLoading : AppModel -> Html Msg
+maybeLoading model =
+    case model.channel of
+        RemoteData.Loading ->
             text "Loading…"
-        Just chan ->
-            ircLogTable chan.messages
+        RemoteData.Success channel ->
+            ircLogTable channel.messages
+        RemoteData.Failure _ ->
+            text "Failure"
+        RemoteData.NotAsked ->
+            text "-¿then why are we here?-"
 
 
 ircLogTable : IrcMessages -> Html msg
