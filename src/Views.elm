@@ -24,7 +24,7 @@ mainView model =
 displayChannelLog : String -> Maybe ChannelModel -> Html Msg
 displayChannelLog channelName channel =
     div [] [
-        pageHeader channelName,
+        pageHeader ("irc logs for #" ++ channelName),
         historyButton DoLoadHistory,
         maybeLoading channel,
         pageFooter
@@ -73,7 +73,6 @@ tableRow row =
     in
         tr [] [cell1, cell2]
 
-
 nickname sender =
     let css = [
             ("font-size", "70%"),
@@ -96,9 +95,9 @@ messageTime timestamp channel =
             ("color", "#808080")
         ]
         timeString = String.join ":" [
-            (Date.hour timestamp |> toString |> String.padLeft 2 '0'),
-            (Date.minute timestamp |> toString |> String.padLeft 2 '0'),
-            (Date.second timestamp |> toString |> String.padLeft 2 '0')
+            Date.hour timestamp |> toString |> String.padLeft 2 '0',
+            Date.minute timestamp |> toString |> String.padLeft 2 '0',
+            Date.second timestamp |> toString |> String.padLeft 2 '0'
         ]
         iso8601 = "FIXME-xyz"
         link = "#/" ++ channel ++ "/" ++ iso8601
@@ -108,7 +107,7 @@ messageTime timestamp channel =
 historyButton msg =
     div [style [("text-align", "center")]] [button [ onClick msg ] [ text "load some history" ]]
 
-pageHeader channel =
+pageHeader title =
     let css = [
             ("text-shadow", "1px 1px 4px rgba(0, 0, 0, 0.3)"),
             ("color", "#444444"),
@@ -116,7 +115,7 @@ pageHeader channel =
         ]
     in
         Html.header [style css] [
-            h1 [] [text ("irc logs for #" ++ channel)]
+            h1 [] [text title]
         ]
 
 pageFooter =
