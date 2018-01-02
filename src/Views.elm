@@ -1,11 +1,13 @@
 module Views exposing (..)
 
 import Html.Events exposing (onClick)
-import Html.Attributes exposing (style, href, id)
+import Html.Attributes exposing (style, href, id, colspan, align)
 import Html exposing (..)
 import Date
 
 import Models exposing (..)
+import Helpers exposing (groupWith)
+
 
 mainView : AppModel -> Html Msg
 mainView model =
@@ -37,12 +39,32 @@ maybeLoading channel =
             ircLogTable chan.messages
 
 
-ircLogTable: IrcMessages -> Html msg
+ircLogTable : IrcMessages -> Html msg
 ircLogTable messages =
     -- FIXME: groupBy and tbody
-    messages
-    |> List.map tableRow
-    |> Html.table [style [("width","100%")]]
+    Html.table [style [("width","100%")]] (
+        groupWith dateOfMessage messages
+        |> List.map (\(group, values) -> tableGroup group values)
+    )
+
+dateOfMessage : {a | timestamp: Date.Date } -> String
+dateOfMessage m =
+    String.join "-"
+    <| [ Date.year m.timestamp |> toString,
+         Date.month m.timestamp |> toString |> String.padLeft 2 '0',
+         Date.day m.timestamp |> toString |> String.padLeft 2 '0'
+    ]
+
+
+tableGroup group values =
+    let css = [("color", "#a0a0a0"),
+               ("border-top", "1px dashed #a0a0a0")
+        ]
+        groupHeading = th [style css, colspan 2, align "right"]
+            <| [a [] [text group]]
+    in
+        tbody []
+            <| tr [] [ groupHeading ] :: List.map tableRow values
 
 
 tableRow row =
