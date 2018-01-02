@@ -80,23 +80,16 @@ viewResultDecoder =
 rowsDecoder : Decode.Decoder IrcMessages
 rowsDecoder =
     Decode.list (Decode.field "doc" rowDecoder)
+    |> Decode.map (List.filterMap identity)
 
-rowDecoder : Decode.Decoder IrcMessage
+rowDecoder : Decode.Decoder (Maybe IrcMessage)
 rowDecoder =
-    Decode.map4 IrcMessage
+    Decode.maybe
+    <| Decode.map4 IrcMessage
         (Decode.field "timestamp" dateDecoder)
         (Decode.field "sender" Decode.string)
         (Decode.field "channel" Decode.string)
-        (Decode.oneOf [msgDecoder, topicDecoder])
-
-msgDecoder : Decode.Decoder EventData
-msgDecoder =
-    Decode.field "message" (Decode.map Message Decode.string)
-
-topicDecoder : Decode.Decoder EventData
-topicDecoder =
-    Decode.field "topic" (Decode.map TopicChange Decode.string)
-
+        (Decode.field "message" Decode.string)
 
 dateDecoder : Decode.Decoder Date.Date
 dateDecoder =

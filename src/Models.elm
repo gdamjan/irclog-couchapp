@@ -7,11 +7,7 @@ import Navigation exposing (Location)
 type alias AppModel = { route: Route, channel: Maybe ChannelModel }
 type alias ChannelModel = { channelName: String, messages: IrcMessages }
 
-type EventData =
-    TopicChange String
-    | Message String
-
-type alias IrcMessage = { timestamp: Date, sender: String, channel: String, event: EventData }
+type alias IrcMessage = { timestamp: Date, sender: String, channel: String, message: String }
 type alias IrcMessages = List IrcMessage
 
 type alias ViewResult = { rows: IrcMessages, update_seq: String, total_rows: Int, offset: Int }

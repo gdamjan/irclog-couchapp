@@ -41,19 +41,16 @@ ircLogTable: IrcMessages -> Html msg
 ircLogTable messages =
     -- FIXME: groupBy and tbody
     messages
-    |> List.filterMap tableRow
+    |> List.map tableRow
     |> Html.table [style [("width","100%")]]
 
 
 tableRow row =
-    case row.event of
-        Message message ->
-            let cell1 = td [style [("vertical-align", "baseline")]] [nickname row.sender, messageText message]
-                cell2 = td [style [("vertical-align", "top")]] [messageTime row.timestamp row.channel]
-            in
-                Just <| tr [] [cell1, cell2]
-        TopicChange _ ->
-            Nothing
+    let cell1 = td [style [("vertical-align", "baseline")]] [nickname row.sender, messageText row.message]
+        cell2 = td [style [("vertical-align", "top")]] [messageTime row.timestamp row.channel]
+    in
+        tr [] [cell1, cell2]
+
 
 nickname sender =
     let css = [
