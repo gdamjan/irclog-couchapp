@@ -69,7 +69,7 @@ getChannelList =
 -- Json decoder for the CouchDb responses
 
 -- The Couch View result:
--- {"total_rows":717308,"offset":94922,"update_seq":"718435-g1AAAAFreJzLYWBg4MhgTmEQTM4vTc5ISXIwNDLXMwBCwxygFFMeC5BkWACk_v__vz8riYExXhmP8iQFIJlkD1QLUhr3Hp9SB5DSeKjSmF8EHXEA4oj7YJPdCSp_AFEONj3BiqDyBojy-WAvzsDn7gSQu-uhJsfb4VGayJAkDwsKhiwASS5k9A",
+-- {"total_rows":717308,"offset":94922,"update_seq":"718435-…",
 -- "rows":[
 --  {"id":"6d29a29c16e5d50e0f9512b09392bd8f","key":["lugola",1513961232.4929347],"value":null,"doc":{"_id":"6d29a29c16e5d50e0f9512b09392bd8f","_rev":"1-26a95effe55022a5656c92b3c768b0cb","sender":"damjan","channel":"lugola","message":"и што е разлика меѓу type и type alias","timestamp":1513961232.4929347}},
 --  {"id":"6d29a29c16e5d50e0f9512b09392b52a","key":["lugola",1513961220.2767942],"value":null,"doc":{"_id":"6d29a29c16e5d50e0f9512b09392b52a","_rev":"1-551157ee6d4bb25eb67eefb11ad4b7d1","sender":"damjan","channel":"lugola","message":"vnz|m: како се викаше дечкото со elm ? :)","timestamp":1513961220.2767942}},
@@ -107,16 +107,16 @@ dateDecoder =
 
 -- The Couch changes result:
 -- {"results":[
--- { "seq":"719223-g1AAAAJ7eJzLYWBg4MhgTmEQTM4vTc5ISXIwNDLXMwBCwxygFFMiQ5L8____szKYkxgY42JygWLsFqbJyWYWydj04DEpSQFIJtnDDYv3AhtmnpZiaWJJsmEOIMPi4YbFJoINMzFINkgxsiTVsASQYfUIl60AG5aSZm5oYmJEomF5LECSoQFIAc2bDzEwQRjiVUtTE0NjUr0KMXABxMD9UBeWgQ1MTjE3MrM0JsvAAxAD70Njdi7YwFQDQ6ATyXPhA4iB0DBMWARxIdDDRklYIyQLAFCApLA",
+-- { "seq":"719223-…",
 --    "id":"6d29a29c16e5d50e0f9512b093ab64f2","changes":[{"rev":"1-ac146ffbf72ca8fad345e5920f85c73d"}],
 --   "doc":{"_id":"6d29a29c16e5d50e0f9512b093ab64f2","_rev":"1-ac146ffbf72ca8fad345e5920f85c73d","sender":"GitHub149","channel":"lugola","message":"irclog-couchapp\u000F/elm\u000F cad666e\u000F Дамјан Георгиевски\u000F: move the View in a separate file, add css, header, footer","timestamp":1514301930.75895}
 -- },
--- { "seq":"719224-g1AAAAJ7eJzLYWBg4MhgTmEQTM4vTc5ISXIwNDLXMwBCwxygFFMiQ5L8____szKYkxgY42JzgWLsFqbJyWYWydj04DEpSQFIJtnDDYv3AhtmnpZiaWJJsmEOIMPi4YbFJoINMzFINkgxsiTVsASQYfUIl60AG5aSZm5oYmJEomF5LECSoQFIAc2bDzEwQRjiVUtTE0NjUr0KMXABxMD9UBeWgQ1MTjE3MrM0JsvAAxAD70Njdi7YwFQDQ6ATyXPhA4iB0DBMWARxIdDDRklYIyQLAFLNpLE",
+-- { "seq":"719224-…",
 --    "id":"6d29a29c16e5d50e0f9512b093ab5a41","changes":[{"rev":"1-695752bc8e65f12169d8dccf30c97bd6"}],
 --   "doc":{"_id":"6d29a29c16e5d50e0f9512b093ab5a41","_rev":"1-695752bc8e65f12169d8dccf30c97bd6","sender":"GitHub149","channel":"lugola","message":"irclog-couchapp\u000F/elm\u000F 0855d7f\u000F Дамјан Георгиевски\u000F: timestamp in database is in seconds, Date.fromTime uses miliseconds","timestamp":1514301930.7455664}
 -- }
 -- ],
--- "last_seq":"719224-g1AAAAJ7eJzLYWBg4MhgTmEQTM4vTc5ISXIwNDLXMwBCwxygFFMiQ5L8____szKYkxgY42JzgWLsFqbJyWYWydj04DEpSQFIJtnDDYv3AhtmnpZiaWJJsmEOIMPi4YbFJoINMzFINkgxsiTVsASQYfUIl60AG5aSZm5oYmJEomF5LECSoQFIAc2bDzEwQRjiVUtTE0NjUr0KMXABxMD9UBeWgQ1MTjE3MrM0JsvAAxAD70Njdi7YwFQDQ6ATyXPhA4iB0DBMWARxIdDDRklYIyQLAFLNpLE","pending":0}
+-- "last_seq":"719224-…","pending":0}
 
 changesDecoder : Decode.Decoder ChangesResult
 changesDecoder =
