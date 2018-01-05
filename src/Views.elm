@@ -42,10 +42,15 @@ maybeLoading model =
 
 ircLogTable : ChannelModel -> Html msg
 ircLogTable channel =
-    Html.table [style [("width","100%")]] (
-        groupWith (\m -> dateOf m.timestamp) channel.messages
-        |> List.map (\(group, values) -> tableGroup channel.channelName group values)
-    )
+    let css = [
+        ("width","100%"),
+        ("padding", "0.2em")
+    ]
+    in
+        Html.table [style css] (
+            groupWith (\m -> dateOf m.timestamp) channel.messages
+            |> List.map (\(group, values) -> tableGroup channel.channelName group values)
+        )
 
 tableGroup channelName group values =
     let css = [
@@ -65,7 +70,7 @@ tableGroup channelName group values =
 
 
 tableRow row =
-    let cell1 = td [style [("vertical-align", "baseline")]] [nickname row.sender, messageText row.message]
+    let cell1 = td [style [("vertical-align", "baseline")]] [nickname row.sender, text "\x00A0", messageText row.message]
         cell2 = td [style [("vertical-align", "top")]] [messageTime row.timestamp row.channel]
     in
         tr [] [cell1, cell2]
@@ -75,14 +80,13 @@ nickname sender =
             ("font-size", "70%"),
             ("padding", "1px 2px"),
             ("background-color", colorize sender),
-            ("color", "black"),
-            ("margin", "0 6px 0 2px")
+            ("color", "black")
         ]
     in
         span [style css] [text sender]
 
 messageText message =
-    span [] [text message] -- FIXME: autolink, simple markdown (bold, italic, monospace), emojis
+    text message -- FIXME: autolink, simple markdown (bold, italic, monospace), emojis
 
 messageTime timestamp channel =
     let css = [
