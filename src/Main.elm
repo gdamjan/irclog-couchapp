@@ -2,6 +2,8 @@ module Main exposing (..)
 
 import Navigation exposing (program, Location)
 import Time
+import Task
+import Process
 import Date
 import Http
 import RemoteData
@@ -10,13 +12,18 @@ import Views
 import Couch
 import Models exposing (..)
 import Routing exposing (parseLocation)
-import Helpers exposing (delay)
 
 
 getChanges : String -> String -> Cmd Msg
 getChanges channelName last_seq =
     Couch.getChanges channelName last_seq
     |> Http.send (OnChannelChanges channelName last_seq)
+
+delayedGetChanges : Float -> String -> String -> Cmd Msg
+delayedGetChanges delay channelName last_seq =
+    Process.sleep (delay*Time.second)
+    |> Task.andThen (\_ -> Http.toTask (Couch.getChanges channelName last_seq))
+    |> Task.attempt (\result -> OnChannelChanges channelName last_seq result)
 
 getLast100 : String -> Cmd Msg
 getLast100 channelName =
@@ -71,13 +78,21 @@ update msg model =
         OnChannelViewResult _ (Err _) ->
             (model, Cmd.none) -- delay (20 * Time.second) DoInitialView) -- backoff?
 
-        OnChannelChanges _ _ (Err _) ->
-            (model, Cmd.none) -- delay (5 * Time.second) DoChanges) -- backoff?
+        OnChannelChanges channelName since (Err _) ->
+            case model.channel of
+                RemoteData.Success channel ->
+                    if channel.last_seq == since && channel.channelName == channelName then
+                        (model, delayedGetChanges 5 channelName since)
+                    else
+                        (model, Cmd.none)
+                _ ->
+                    (model, Cmd.none)
 
         DoLoadHistory ->
             (model, Cmd.none)
 
 
+activateRoute : AppModel -> Route -> (AppModel, Cmd Msg)
 activateRoute model route =
     let
         model_ = { model | route=route }
