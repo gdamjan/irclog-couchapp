@@ -1,7 +1,7 @@
 module Views exposing (..)
 
 import Html.Events exposing (onClick)
-import Html.Attributes exposing (style, href, id, colspan, align)
+import Html.Attributes exposing (style, href, id, colspan, align, title)
 import Html exposing (..)
 import RemoteData
 
@@ -9,8 +9,18 @@ import Models exposing (..)
 import Helpers exposing (..)
 
 
-homePage model =
-    div [] [text "Hello World!"]
+maybeLoading : RemoteData.RemoteData e a -> (a -> Html Msg) -> Html Msg
+maybeLoading remoteData f =
+    case remoteData of
+        RemoteData.Loading ->
+            text "Loading…"
+        RemoteData.Success data ->
+            f data
+        RemoteData.Failure _ ->
+            text "Failure"
+        RemoteData.NotAsked ->
+            text "-¿then why are we here?-"
+
 
 notFoundPage =
     div [] [text "Not Found"]
@@ -18,26 +28,45 @@ notFoundPage =
 channelLogAt channelName d =
     div [] [text (toString d)]
 
+homePage model =
+    let css = [("padding", "6px")]
+    in
+        div [] [
+            pageHeader "IRC logs with realtime updates",
+            div [style css] [text "This web page is a viewer of irclogs collected by my ",
+                a [href "https://github.com/gdamjan/erlang-irc-bot"] [text "erlang irc bot"],
+                text ". The bot stores the logs in a CouchDB where this web-app (or couchapp) is also stored. You can also ",
+                a [href "http://wiki.apache.org/couchdb/Replication"] [text "replicate"], text " the database at https://irc.softver.org.mk/api freely."],
+            maybeLoading model.channelList channelList,
+            div [style css] [text "If you want your irc channel on freenode logged, contact 'damjan' on #lugola."],
+            pageFooter
+        ]
+
+channelList list =
+    let css = [
+            ("list-style-type", "square"),
+            ("padding-left", "2em"),
+            ("margin", "1em 0")
+        ]
+    in
+        div [style [("padding", "6px")]] [
+            text "The following channels are currently logged:",
+            ul [style css] <| List.map channelItem list
+        ]
+
+channelItem c =
+    li [] [
+        a [href ("#/"++c.name), title ("total messages: "++toString c.totalMessages)] [text c.name]
+    ]
+
 recentChannelLog : String -> AppModel -> Html Msg
 recentChannelLog channelName model =
     div [] [
         pageHeader ("irc logs for #" ++ channelName),
         historyButton DoLoadHistory,
-        maybeLoading model,
+        maybeLoading model.channel ircLogTable,
         pageFooter
     ]
-
-maybeLoading : AppModel -> Html Msg
-maybeLoading model =
-    case model.channel of
-        RemoteData.Loading ->
-            text "Loading…"
-        RemoteData.Success channel ->
-            ircLogTable channel
-        RemoteData.Failure _ ->
-            text "Failure"
-        RemoteData.NotAsked ->
-            text "-¿then why are we here?-"
 
 
 ircLogTable : ChannelModel -> Html msg
@@ -107,7 +136,8 @@ pageHeader title =
     let css = [
             ("text-shadow", "1px 1px 4px rgba(0, 0, 0, 0.3)"),
             ("color", "#444444"),
-            ("padding", "6px")
+            ("padding", "6px"),
+            ("margin", "1em 0")
         ]
     in
         Html.header [style css] [

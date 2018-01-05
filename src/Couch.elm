@@ -56,6 +56,15 @@ getChanges channel since =
             withCredentials = False
         }
 
+getChannelList : Http.Request (List Channel)
+getChannelList =
+    let listUrl = url "https://irc.softver.org.mk/ddoc/_view/channel" [
+            ("update_seq", "true"),
+            ("reduce", "true"),
+            ("group_level", "1")
+        ]
+    in
+        Http.get listUrl channelListDecoder
 
 -- Json decoder for the CouchDb responses
 
@@ -114,3 +123,18 @@ changesDecoder =
     Decode.map2 ChangesResult
         (Decode.field "results" rowsDecoder)
         (Decode.field "last_seq" Decode.string)
+
+-- {"update_seq":"720750-…",
+--  "rows":[
+--       {"key":["lugola"],"value":617675},
+--       {"key":["ubuntu-mk"],"value":414},
+-- ]}
+
+channelListDecoder : Decode.Decoder (List Channel)
+channelListDecoder =
+    Decode.field "rows" (Decode.list channelRowDecoder)
+
+channelRowDecoder =
+    Decode.map2 Channel
+        (Decode.field "key" (Decode.index 0 Decode.string))
+        (Decode.field "value" (Decode.int))

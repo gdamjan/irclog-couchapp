@@ -88,8 +88,16 @@ update msg model =
                 _ ->
                     (model, Cmd.none)
 
+        OnChannelList (Ok channelList) ->
+            ({ model | channelList = RemoteData.Success channelList }, Cmd.none)
+
+        OnChannelList (Result.Err _) ->
+            (model, Cmd.none)
+
         DoLoadHistory ->
             (model, Cmd.none)
+
+
 
 
 activateRoute : AppModel -> Route -> (AppModel, Cmd Msg)
@@ -101,7 +109,7 @@ activateRoute model route =
             HomeRoute ->
                 let model = {model_ | channel=RemoteData.NotAsked }
                 in
-                    (model, Cmd.none)
+                    (model, Http.send OnChannelList Couch.getChannelList)
 
             ChannelRoute channelName ->
                 let model = {model_ | channel=RemoteData.Loading }
