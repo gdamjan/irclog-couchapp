@@ -3,11 +3,10 @@ module Views exposing (..)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, href, id, colspan, align)
 import Html exposing (..)
-import Date
 import RemoteData
 
 import Models exposing (..)
-import Helpers exposing (groupWith)
+import Helpers exposing (..)
 
 
 homePage model =
@@ -34,36 +33,32 @@ maybeLoading model =
         RemoteData.Loading ->
             text "Loading…"
         RemoteData.Success channel ->
-            ircLogTable channel.messages
+            ircLogTable channel
         RemoteData.Failure _ ->
             text "Failure"
         RemoteData.NotAsked ->
             text "-¿then why are we here?-"
 
 
-ircLogTable : IrcMessages -> Html msg
-ircLogTable messages =
-    -- FIXME: groupBy and tbody
+ircLogTable : ChannelModel -> Html msg
+ircLogTable channel =
     Html.table [style [("width","100%")]] (
-        groupWith dateOfMessage messages
-        |> List.map (\(group, values) -> tableGroup group values)
+        groupWith (\m -> dateOf m.timestamp) channel.messages
+        |> List.map (\(group, values) -> tableGroup channel.channelName group values)
     )
 
-dateOfMessage : {a | timestamp: Date.Date } -> String
-dateOfMessage m =
-    String.join "-"
-    <| [ Date.year m.timestamp |> toString,
-         Date.month m.timestamp |> toString |> String.padLeft 2 '0',
-         Date.day m.timestamp |> toString |> String.padLeft 2 '0'
-    ]
-
-
-tableGroup group values =
-    let css = [("color", "#a0a0a0"),
-               ("border-top", "1px dashed #a0a0a0")
+tableGroup channelName group values =
+    let css = [
+            ("color", "#a0a0a0"),
+            ("border-top", "1px dashed #a0a0a0")
+        ]
+        link = "#/" ++ channelName ++ "/" ++ group
+        linkCss = [
+            --("text-decoration", "none"),
+            ("color", "#808080")
         ]
         groupHeading = th [style css, colspan 2, align "right"]
-            <| [a [] [text group]]
+            <| [a [style linkCss, href link, id group] [text group]]
     in
         tbody []
             <| tr [] [ groupHeading ] :: List.map tableRow values
@@ -96,15 +91,10 @@ messageTime timestamp channel =
             ("text-decoration", "none"),
             ("color", "#808080")
         ]
-        timeString = String.join ":" [
-            Date.hour timestamp |> toString |> String.padLeft 2 '0',
-            Date.minute timestamp |> toString |> String.padLeft 2 '0',
-            Date.second timestamp |> toString |> String.padLeft 2 '0'
-        ]
-        iso8601 = "FIXME-xyz"
+        iso8601 = datetimeOf timestamp
         link = "#/" ++ channel ++ "/" ++ iso8601
     in
-        a [style css, href link, id iso8601] [text timeString]
+        a [style css, href link, id iso8601] [text (timeOf timestamp)]
 
 historyButton msg =
     div [style [("text-align", "center")]] [button [ onClick msg ] [ text "load some history" ]]
