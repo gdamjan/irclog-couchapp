@@ -3,9 +3,15 @@ module Helpers exposing (.. )
 import Http exposing (encodeUri)
 import Process
 import Task
-import Time exposing (Time)
+import Time
 import Dict
 import Date
+import Identicon
+import Color.Convert
+
+colorize s =
+    Identicon.defaultColor s
+    |> Color.Convert.colorToCssRgb
 
 url : String -> List (String,String) -> String
 url baseUrl args =
@@ -26,7 +32,7 @@ queryEscape string =
 {-
     Send a message after a delay
 -}
-delay : Time -> msg -> Cmd msg
+delay : Time.Time -> msg -> Cmd msg
 delay time msg =
   Process.sleep time
   |> Task.perform (\_ -> msg)

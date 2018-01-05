@@ -74,8 +74,8 @@ nickname sender =
     let css = [
             ("font-size", "70%"),
             ("padding", "1px 2px"),
-            ("background-color", "black"), -- FIXME: random/hashed pastel color
-            ("color", "white"),
+            ("background-color", colorize sender),
+            ("color", "black"),
             ("margin", "0 6px 0 2px")
         ]
     in
