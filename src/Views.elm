@@ -71,35 +71,23 @@ recentChannelLog channelName model =
 
 ircLogTable : ChannelModel -> Html msg
 ircLogTable channel =
-    let css = [
-        ("width","100%"),
-        ("padding", "0.2em")
-    ]
-    in
-        Html.table [style css] (
-            groupWith (\m -> dateOf m.timestamp) channel.messages
-            |> List.map (\(group, values) -> tableGroup channel.channelName group values)
-        )
+    Html.table [] (
+        groupWith (\m -> dateOf m.timestamp) channel.messages
+        |> List.map (\(group, values) -> tableGroup channel.channelName group values)
+    )
 
 tableGroup channelName group values =
-    let css = [
-            ("color", "#a0a0a0"),
-            ("border-top", "1px dashed #a0a0a0")
-        ]
+    let
         link = "#/" ++ channelName ++ "/" ++ group
-        linkCss = [
-            --("text-decoration", "none"),
-            ("color", "#808080")
-        ]
-        groupHeading = th [style css, colspan 2, align "right"]
-            <| [a [style linkCss, href link, id group] [text group]]
+        groupHeading = th [colspan 2, align "right"]
+            <| [a [href link, id group] [text group]]
     in
         tbody []
             <| tr [] [ groupHeading ] :: List.map tableRow values
 
 
 tableRow row =
-    let cell1 = td [style [("vertical-align", "baseline")]] [nickname row.sender, text "\x00A0", messageText row.message]
+    let cell1 = td [] [nickname row.sender, text "\x00A0", messageText row.message]
         cell2 = td [style [("vertical-align", "top")]] [messageTime row.timestamp row.channel]
     in
         tr [] [cell1, cell2]
@@ -133,29 +121,11 @@ historyButton msg =
     div [style [("text-align", "center")]] [button [ onClick msg ] [ text "load some history" ]]
 
 pageHeader title =
-    let css = [
-            ("text-shadow", "1px 1px 4px rgba(0, 0, 0, 0.3)"),
-            ("color", "#444444"),
-            ("padding", "6px"),
-            ("margin", "1em 0")
-        ]
-    in
-        Html.header [style css] [
-            h1 [] [text title]
-        ]
+    Html.header [id "header"] [
+        h1 [] [text title]
+    ]
 
 pageFooter =
-    let footerCss = [
-            ("border-top", "1px dashed #aaaaaa"),
-            ("margin-top", "1.5em"),
-            ("padding", "8px 6px 0.5em 6px"),
-            ("background-color", "#eeeeee")
-        ]
-        linkCss = [
-            ("text-decoration", "none"),
-            ("color", "#555555")
-        ]
-    in
-        Html.footer [style footerCss, id "footer"] [
-            a [href "https://irc.softver.org.mk/", style linkCss] [text "irclog home page"]
-        ]
+    Html.footer [id "footer"] [
+        a [href "https://irc.softver.org.mk/"] [text "irclog home page"]
+    ]
