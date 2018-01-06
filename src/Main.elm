@@ -107,7 +107,7 @@ activateRoute model route =
     in
         case route of
             HomeRoute ->
-                let model = {model_ | channel=RemoteData.NotAsked }
+                let model = {model_ | channelList=RemoteData.Loading, channel=RemoteData.NotAsked }
                 in
                     (model, Http.send OnChannelList Couch.getChannelList)
 
