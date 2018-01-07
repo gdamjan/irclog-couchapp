@@ -26,7 +26,7 @@ notFoundPage =
     div [] [text "Not Found"]
 
 channelLogAt channelName d =
-    div [] [text (toString d)]
+    div [] [text (toString d), pageFooter]
 
 homePage model =
     let css = [("padding", "6px")]
