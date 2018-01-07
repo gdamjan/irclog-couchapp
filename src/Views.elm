@@ -64,12 +64,12 @@ recentChannelLog channelName model =
     div [] [
         pageHeader ("irc logs for #" ++ channelName),
         historyButton DoLoadHistory,
-        maybeLoading model.channel ircLogTable,
+        maybeLoading model.channelLog ircLogTable,
         pageFooter
     ]
 
 
-ircLogTable : ChannelModel -> Html msg
+ircLogTable : ChannelLog -> Html msg
 ircLogTable channel =
     Html.table [] (
         groupWith (\m -> dateOf m.timestamp) channel.messages

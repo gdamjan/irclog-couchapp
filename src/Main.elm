@@ -55,21 +55,21 @@ update msg model =
         OnChannelViewResult channelName (Ok viewResult) ->
             let chan = createChannel channelName viewResult
                 last_seq = viewResult.update_seq
-                newModel = { model | channel=RemoteData.Success chan }
+                nextModel = { model | channelLog=RemoteData.Success chan }
             in
-                (newModel, getChanges channelName last_seq)
+                (nextModel, getChanges channelName last_seq)
 
         OnChannelChanges channelName since (Ok changesResult) ->
         -- only update the model if, the request was made for the same channel name and last_seq in the model hasn't changed meanwhile
-            case model.channel of
+            case model.channelLog of
                 RemoteData.Success channel ->
                     if channel.last_seq == since && channel.channelName == channelName then
                     let
                         chan = updateChannel channel changesResult
-                        newmodel = { model | channel= RemoteData.Success chan }
+                        nextModel = { model | channelLog= RemoteData.Success chan }
                         last_seq = changesResult.last_seq
                     in
-                        (newmodel, getChanges channelName last_seq)
+                        (nextModel, getChanges channelName last_seq)
                     else
                         (model, Cmd.none)
                 _ ->
@@ -79,9 +79,9 @@ update msg model =
             (model, Cmd.none) -- delay (20 * Time.second) DoInitialView) -- backoff?
 
         OnChannelChanges channelName since (Err _) ->
-            case model.channel of
-                RemoteData.Success channel ->
-                    if channel.last_seq == since && channel.channelName == channelName then
+            case model.channelLog of
+                RemoteData.Success channelLog ->
+                    if channelLog.last_seq == since && channelLog.channelName == channelName then
                         (model, delayedGetChanges 5 channelName since)
                     else
                         (model, Cmd.none)
@@ -107,24 +107,24 @@ activateRoute model route =
     in
         case route of
             HomeRoute ->
-                let model = {model_ | channelList=RemoteData.Loading, channel=RemoteData.NotAsked }
+                let nextModel = {model_ | channelList=RemoteData.Loading, channelLog=RemoteData.NotAsked }
                 in
-                    (model, Http.send OnChannelList Couch.getChannelList)
+                    (nextModel, Http.send OnChannelList Couch.getChannelList)
 
             ChannelRoute channelName ->
-                let model = {model_ | channel=RemoteData.Loading }
+                let nextModel = {model_ | channelLog=RemoteData.Loading }
                 in
-                    (model, getLast100 channelName)
+                    (nextModel, getLast100 channelName)
 
             ChannelDateTimeRoute _ _->
-                let model = {model_ | channel=RemoteData.Loading }
+                let nextModel = {model_ | channelLog=RemoteData.Loading }
                 in
-                    (model, Cmd.none)
+                    (nextModel, Cmd.none)
 
             NotFoundRoute ->
-                let model = {model_ | channel=RemoteData.NotAsked }
+                let nextModel = {model_ | channelLog=RemoteData.NotAsked }
                 in
-                    (model, Cmd.none)
+                    (nextModel, Cmd.none)
 
 
 init : Location -> ( AppModel, Cmd Msg )
@@ -133,7 +133,6 @@ init location =
         model = initialModel route
     in
         activateRoute model route
---        (model, Task.perform identity (Task.succeed (OnLocationChange location)))
 
 view model =
     case model.route of

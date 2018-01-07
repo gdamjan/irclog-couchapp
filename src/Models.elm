@@ -5,17 +5,23 @@ import Http exposing (Error)
 import Navigation exposing (Location)
 import RemoteData
 
-type alias AppModel = { route: Route, channel: RemoteData.WebData ChannelModel,  channelList: RemoteData.WebData (List Channel) }
-type alias ChannelModel = {
+type alias AppModel = {
+        route: Route,
+        channelLog: RemoteData.WebData ChannelLog,
+        channelList: RemoteData.WebData (List Channel)
+    }
+
+type alias ChannelLog = {
         channelName: String,
         messages: IrcMessages,
         last_seq: String
     }
+
 type alias Channel = { name: String, totalMessages: Int }
 
 initialModel : Route -> AppModel
 initialModel route =
-    { channel = RemoteData.NotAsked,
+    { channelLog = RemoteData.NotAsked,
       channelList = RemoteData.NotAsked,
       route = route
     }
