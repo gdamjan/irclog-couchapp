@@ -1,7 +1,7 @@
 module Views exposing (..)
 
 import Html.Events exposing (onClick)
-import Html.Attributes exposing (style, href, id, colspan, align, title)
+import Html.Attributes exposing (style, href, id, class, colspan, align, title)
 import Html exposing (..)
 import RemoteData
 
@@ -88,7 +88,7 @@ tableGroup channelName group values =
 
 tableRow row =
     let cell1 = td [] [nickname row.sender, text "\x00A0", messageText row.message]
-        cell2 = td [style [("vertical-align", "top")]] [messageTime row.timestamp row.channel]
+        cell2 = td [class "timestamp"] [messageTime row.timestamp row.channel]
     in
         tr [] [cell1, cell2]
 

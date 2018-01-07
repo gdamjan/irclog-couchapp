@@ -37,6 +37,7 @@ body > div { padding-bottom: 4rem } /* pad enough so content doesn't go under fo
 
 table tbody tr th { color: #a0a0a0; border-top: 1px dashed #a0a0a0 }
 table tbody tr th a { color: #808080 }
+table td.timestamp { width: 1%; vertical-align: top }
 
 /* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
@@ -83,4 +84,5 @@ table {
 	border-collapse: separate;
 	border-spacing: 2px 2px;
 	padding: 4px;
+	width: 100%;
 }
