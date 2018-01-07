@@ -38,6 +38,7 @@ type Msg
     | OnLocationChange Location
     | OnChannelList (Result Http.Error (List Channel))
     | DoLoadHistory
+    | NoOp
 
 type Route
     = HomeRoute

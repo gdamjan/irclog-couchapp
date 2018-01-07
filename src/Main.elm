@@ -97,6 +97,7 @@ update msg model =
         DoLoadHistory ->
             (model, Cmd.none)
 
+        NoOp -> (model, Cmd.none)
 
 
 
