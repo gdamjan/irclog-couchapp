@@ -13,7 +13,7 @@ maybeLoading : RemoteData.RemoteData e a -> (a -> Html Msg) -> Html Msg
 maybeLoading remoteData f =
     case remoteData of
         RemoteData.Loading ->
-            text "Loading…"
+            loadingAnimation
         RemoteData.Success data ->
             f data
         RemoteData.Failure _ ->
@@ -21,6 +21,13 @@ maybeLoading remoteData f =
         RemoteData.NotAsked ->
             text "-¿then why are we here?-"
 
+loadingAnimation =
+    div [ class "container" ]
+        [ div [class "item item-1"] []
+        , div [class "item item-2"] []
+        , div [class "item item-3"] []
+        , div [class "item item-4"] []
+        ]
 
 notFoundPage =
     div [] [text "Not Found"]
