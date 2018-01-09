@@ -10,11 +10,18 @@
 - title flash / notifications?
 - fancy messages
 - search component
+- settings
+- fancy reports (tags, todo lists, etc…)
 - online status / latency
   - timeout of Http.send (watchdog task?) ✓
 - scroll to bottom
-- fix Chrome (IE?)
+- fix Chrome ✓
+- Android Fennec and Browser ✓
+- IE?
 - favicon ✓
 
+elm 0.19:
+- elm-lang/browser … https://github.com/elm-lang/browser/blob/master/src/Browser.elm#L171
+- https://github.com/elm-lang/url
 
 How does ELM scale - component wise? Every change must be reflected in the model and update function :/
