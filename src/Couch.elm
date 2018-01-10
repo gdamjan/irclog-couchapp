@@ -9,37 +9,60 @@ import Helpers exposing (url)
 import Models exposing (..)
 
 
-getChannelLog : String -> Int -> String -> String -> Http.Request ViewResult
-getChannelLog channel num start end =
+getChannelLog : String -> Int -> String -> String -> List (String, String) -> Http.Request ViewResult
+getChannelLog channel limit start end args =
     let
         startkey = "[\"" ++ channel ++ "\"," ++ start ++ "]"
         endkey = "[\"" ++ channel ++ "\"," ++ end  ++ "]"
-        viewUrl = url "https://irc.softver.org.mk/ddoc/_view/channel" [
+        query = [
             ("startkey", startkey),
             ("endkey", endkey),
-            ("limit", toString num),
+            ("limit", toString limit),
             ("include_docs", "true"),
-            ("descending", "true"),
             ("update_seq", "true"),
             ("reduce", "false")
         ]
+        viewUrl = url "https://irc.softver.org.mk/ddoc/_view/channel" (query ++ args)
     in
         Http.get viewUrl viewResultDecoder
 
 getLastMessages : String -> Int -> Http.Request ViewResult
 getLastMessages channel num =
-    getChannelLog channel num "{}" "0"
+    getChannelLog channel num "{}" "0" [("descending", "true")]
 
+
+getLast100Messages : String -> Http.Request ViewResult
 getLast100Messages channel =
     getLastMessages channel 100
+
+getAt : String -> Date.Date -> Http.Request ViewResult
+getAt channelName date =
+    let start = (Date.toTime date) / 1000 |> toString
+    in
+        getChannelLog channelName 100 start "{}" [("descending", "false")]
+
+getPrevPage : String -> IrcMessage -> Http.Request ViewResult
+getPrevPage channelName message =
+    let start = (Date.toTime message.timestamp) / 1000 |> toString
+        limit = 100
+    in
+        getChannelLog channelName limit start "0" [("descending", "true")]
+
+getNextPage : String -> IrcMessage -> Http.Request ViewResult
+getNextPage channelName message =
+    let start = (Date.toTime message.timestamp) / 1000 |> toString
+        limit = 100
+    in
+        getChannelLog channelName limit start "{}" [("descending", "false"), ("startkey_docid", message.id), ("skip","1")]
 
 
 getChanges : String -> String -> Http.Request ChangesResult
 getChanges channel since =
     let
+        timeout = 90
         changesUrl = url "https://irc.softver.org.mk/api/_changes" [
             ("feed","longpoll"),
-            ("timeout", "90000"),
+            ("timeout", toString <| timeout * 1000),
             ("include_docs", "true"),
             ("filter","log/channel"),
             ("channel", channel),
@@ -52,7 +75,7 @@ getChanges channel since =
             url = changesUrl,
             body = Http.emptyBody,
             expect = Http.expectJson changesDecoder,
-            timeout = Just (100 * Time.second),
+            timeout = Just (timeout * Time.second * 1.15),
             withCredentials = False
         }
 
@@ -94,7 +117,8 @@ rowsDecoder =
 rowDecoder : Decode.Decoder (Maybe IrcMessage)
 rowDecoder =
     Decode.maybe
-    <| Decode.map4 IrcMessage
+    <| Decode.map5 IrcMessage
+        (Decode.field "_id" Decode.string)
         (Decode.field "timestamp" dateDecoder)
         (Decode.field "sender" Decode.string)
         (Decode.field "channel" Decode.string)
@@ -134,6 +158,7 @@ channelListDecoder : Decode.Decoder (List Channel)
 channelListDecoder =
     Decode.field "rows" (Decode.list channelRowDecoder)
 
+channelRowDecoder : Decode.Decoder Channel
 channelRowDecoder =
     Decode.map2 Channel
         (Decode.field "key" (Decode.index 0 Decode.string))
