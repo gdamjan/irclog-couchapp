@@ -26,19 +26,20 @@ initialModel route =
       route = route
     }
 
-type alias IrcMessage = { timestamp: Date, sender: String, channel: String, message: String }
+type alias IrcMessage = { id: String, timestamp: Date, sender: String, channel: String, message: String }
 type alias IrcMessages = List IrcMessage
 
-type alias ViewResult = { rows: IrcMessages, update_seq: String, total_rows: Int, offset: Int }
-type alias ChangesResult = { results: IrcMessages, last_seq: String }
+type alias ViewResult = { rows: IrcMessages, last_seq: String, total_rows: Int, offset: Int }
+type alias ChangesResult = { rows: IrcMessages, last_seq: String }
 
 type Msg
     = OnChannelViewResult String (Result Http.Error ViewResult)
-    | OnChannelBackdateResult String IrcMessage (Result Http.Error ViewResult)
+    | OnPrevPageResult String IrcMessage (Result Http.Error ViewResult)
+    | OnNextPageResult String IrcMessage (Result Http.Error ViewResult)
     | OnChannelChanges String String (Result Http.Error ChangesResult)
     | OnLocationChange Location
     | OnChannelList (Result Http.Error (List Channel))
-    | DoLoadHistory
+    | GetPrevPage | GetNextPage
     | NoOp
 
 type Route
