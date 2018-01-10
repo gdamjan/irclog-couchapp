@@ -1,3 +1,8 @@
+- title flash / notifications?
+- scroll to bottom
+- fancy messages
+- search component
+
 - groupBy + tbody ✓
 - handle topic change in results ✓
 - permalinks ✓
@@ -8,17 +13,13 @@
   · point in history ✓ (but disable changes) ✓
 - paging ✓
   · fix duplicate message on nextpage (will need to take doc ids too) ✓
-  · start changes feed when at the end - and then remove button
+  · start changes feed when at the end - and then remove button ✓
 
 - colors ✓
-- title flash / notifications?
-- fancy messages
-- search component
-- settings
+- settings ?
 - fancy reports (tags, todo lists, etc…)
 - online status / latency
-  - timeout of Http.send (watchdog task?) ✓
-- scroll to bottom
+  · timeout of Http.send (watchdog task?) ✓
 - fix Chrome ✓
 - Android Fennec and Browser ✓
 - IE?
