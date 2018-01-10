@@ -59,22 +59,23 @@ update msg model =
             in
                 (nextModel, getChanges channelName last_seq)
 
-        OnChannelBackdateResult channelName (Ok viewResult) ->
+        OnChannelBackdateResult channelName head (Ok viewResult) ->
             case model.channelLog of
                 RemoteData.Success channel ->
-                    if channel.channelName == channelName then
-                        let backMessages = List.reverse viewResult.rows
-                            messages = backMessages ++ channel.messages
-                            chan = { channel | messages = messages }
-                            nextModel = { model | channelLog=RemoteData.Success chan }
-                        in
-                            (nextModel, Cmd.none)
-                    else
-                        (model, Cmd.none)
+                    case (channel.channelName, channel.messages) of
+                        (channelName, head::_) ->
+                            let backMessages = List.reverse viewResult.rows
+                                messages = backMessages ++ channel.messages
+                                chan = { channel | messages = messages }
+                                nextModel = { model | channelLog=RemoteData.Success chan }
+                            in
+                                (nextModel, Cmd.none)
+                        (_, _) ->
+                            (model, Cmd.none)
                 _ ->
                     (model, Cmd.none)
 
-        OnChannelBackdateResult _ (Err _) -> (model, Cmd.none)
+        OnChannelBackdateResult _ _ (Err _) -> (model, Cmd.none)
 
 
 
@@ -122,7 +123,7 @@ update msg model =
                             let end = "0"
                                 start = (Date.toTime head.timestamp) / 1000 |> toString
                             in
-                                (model, Http.send (OnChannelBackdateResult channel.channelName) (Couch.getChannelLog channel.channelName 100 start end))
+                                (model, Http.send (OnChannelBackdateResult channel.channelName head) (Couch.getChannelLog channel.channelName 100 start end))
                 _ ->
                     (model, Cmd.none)
 
