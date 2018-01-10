@@ -34,6 +34,7 @@ type alias ChangesResult = { results: IrcMessages, last_seq: String }
 
 type Msg
     = OnChannelViewResult String (Result Http.Error ViewResult)
+    | OnChannelBackdateResult String (Result Http.Error ViewResult)
     | OnChannelChanges String String (Result Http.Error ChangesResult)
     | OnLocationChange Location
     | OnChannelList (Result Http.Error (List Channel))

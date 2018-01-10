@@ -59,6 +59,25 @@ update msg model =
             in
                 (nextModel, getChanges channelName last_seq)
 
+        OnChannelBackdateResult channelName (Ok viewResult) ->
+            case model.channelLog of
+                RemoteData.Success channel ->
+                    if channel.channelName == channelName then
+                        let backMessages = List.reverse viewResult.rows
+                            messages = backMessages ++ channel.messages
+                            chan = { channel | messages = messages }
+                            nextModel = { model | channelLog=RemoteData.Success chan }
+                        in
+                            (nextModel, Cmd.none)
+                    else
+                        (model, Cmd.none)
+                _ ->
+                    (model, Cmd.none)
+
+        OnChannelBackdateResult _ (Err _) -> (model, Cmd.none)
+
+
+
         OnChannelChanges channelName since (Ok changesResult) ->
         -- only update the model if, the request was made for the same channel name and last_seq in the model hasn't changed meanwhile
             case model.channelLog of
@@ -95,7 +114,17 @@ update msg model =
             (model, Cmd.none)
 
         DoLoadHistory ->
-            (model, Cmd.none)
+            case model.channelLog of
+                RemoteData.Success channel ->
+                    case List.head channel.messages of
+                        Nothing -> (model, Cmd.none)
+                        Just head ->
+                            let end = "0"
+                                start = (Date.toTime head.timestamp) / 1000 |> toString
+                            in
+                                (model, Http.send (OnChannelBackdateResult channel.channelName) (Couch.getChannelLog channel.channelName 100 start end))
+                _ ->
+                    (model, Cmd.none)
 
         NoOp -> (model, Cmd.none)
 
