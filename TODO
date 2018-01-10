@@ -5,7 +5,11 @@
 - home page - channel list ✓
 - navigation:
   · different channel ✓
-  · point in history
+  · point in history ✓ (but disable changes) ✓
+- paging ✓
+  · fix duplicate message on nextpage (will need to take doc ids too) ✓
+  · start changes feed when at the end - and then remove button
+
 - colors ✓
 - title flash / notifications?
 - fancy messages
