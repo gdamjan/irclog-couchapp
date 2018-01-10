@@ -59,6 +59,8 @@ update msg model =
             in
                 (nextModel, getChanges channelName last_seq)
 
+        OnChannelViewResult _ (Err _) -> (model, Cmd.none)
+
         OnChannelBackdateResult channelName head (Ok viewResult) ->
             case model.channelLog of
                 RemoteData.Success channel ->
@@ -77,8 +79,6 @@ update msg model =
 
         OnChannelBackdateResult _ _ (Err _) -> (model, Cmd.none)
 
-
-
         OnChannelChanges channelName since (Ok changesResult) ->
         -- only update the model if, the request was made for the same channel name and last_seq in the model hasn't changed meanwhile
             case model.channelLog of
@@ -95,8 +95,6 @@ update msg model =
                 _ ->
                     (model, Cmd.none)
 
-        OnChannelViewResult _ (Err _) ->
-            (model, Cmd.none) -- delay (20 * Time.second) DoInitialView) -- backoff?
 
         OnChannelChanges channelName since (Err _) ->
             case model.channelLog of
@@ -123,7 +121,8 @@ update msg model =
                             let end = "0"
                                 start = (Date.toTime head.timestamp) / 1000 |> toString
                             in
-                                (model, Http.send (OnChannelBackdateResult channel.channelName head) (Couch.getChannelLog channel.channelName 100 start end))
+                                (model, Couch.getChannelLog channel.channelName 100 start end
+                                        |> Http.send (OnChannelBackdateResult channel.channelName head))
                 _ ->
                     (model, Cmd.none)
 
