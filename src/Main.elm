@@ -30,16 +30,35 @@ getLast100 channelName =
     Couch.getLast100Messages channelName
     |> Http.send (OnChannelViewResult channelName)
 
+getAt : String -> Date.Date -> Cmd Msg
+getAt channelName date =
+    Couch.getAt channelName date
+    |> Http.send (OnChannelViewResult channelName)
+
+getPrevPage channel =
+    case channel.messages of
+        head::_ ->
+            Couch.getPrevPage channel.channelName head
+            |> Http.send (OnPrevPageResult channel.channelName head)
+        [] -> Cmd.none
+
+getNextPage channel =
+    case List.reverse channel.messages of
+        last::_ ->
+            Couch.getNextPage channel.channelName last
+            |> Http.send (OnNextPageResult channel.channelName last)
+        [] -> Cmd.none
+
 createChannel channelName viewResult =
-    let messages = List.reverse viewResult.rows
-        last_seq = viewResult.update_seq
+    let messages = List.sortBy (\doc -> Date.toTime doc.timestamp) viewResult.rows
+        last_seq = viewResult.last_seq
     in
         { channelName=channelName, messages=messages, last_seq=last_seq }
 
 updateChannel channel changesResult =
-    let results = List.sortBy (\doc -> Date.toTime doc.timestamp) changesResult.results
-        messages = channel.messages ++ results
+    let results = List.sortBy (\doc -> Date.toTime doc.timestamp) changesResult.rows
         last_seq = changesResult.last_seq
+        messages = channel.messages ++ results
     in
         { channel | messages=messages, last_seq=last_seq }
 
@@ -54,20 +73,23 @@ update msg model =
 
         OnChannelViewResult channelName (Ok viewResult) ->
             let chan = createChannel channelName viewResult
-                last_seq = viewResult.update_seq
+                last_seq = viewResult.last_seq
                 nextModel = { model | channelLog=RemoteData.Success chan }
             in
-                (nextModel, getChanges channelName last_seq)
+                case model.route of
+                    ChannelRoute _ ->
+                        (nextModel, getChanges channelName last_seq)
+                    _ ->
+                        (nextModel, Cmd.none)
 
         OnChannelViewResult _ (Err _) -> (model, Cmd.none)
 
-        OnChannelBackdateResult channelName head (Ok viewResult) ->
+        OnNextPageResult channelName last (Ok viewResult) ->
             case model.channelLog of
                 RemoteData.Success channel ->
-                    case (channel.channelName, channel.messages) of
-                        (channelName, head::_) ->
-                            let backMessages = List.reverse viewResult.rows
-                                messages = backMessages ++ channel.messages
+                    case (channel.channelName, List.reverse channel.messages) of
+                        (channelName, last::_) ->
+                            let messages = channel.messages ++ viewResult.rows
                                 chan = { channel | messages = messages }
                                 nextModel = { model | channelLog=RemoteData.Success chan }
                             in
@@ -77,7 +99,24 @@ update msg model =
                 _ ->
                     (model, Cmd.none)
 
-        OnChannelBackdateResult _ _ (Err _) -> (model, Cmd.none)
+        OnPrevPageResult channelName head (Ok viewResult) ->
+            case model.channelLog of
+                RemoteData.Success channel ->
+                    case (channel.channelName, channel.messages) of
+                        (channelName, head::_) ->
+                            let rows = List.reverse viewResult.rows
+                                messages = rows ++ channel.messages
+                                chan = { channel | messages = messages }
+                                nextModel = { model | channelLog=RemoteData.Success chan }
+                            in
+                                (nextModel, Cmd.none)
+                        (_, _) ->
+                            (model, Cmd.none)
+                _ ->
+                    (model, Cmd.none)
+
+        OnPrevPageResult _ _ (Err _) -> (model, Cmd.none)
+        OnNextPageResult _ _ (Err _) -> (model, Cmd.none)
 
         OnChannelChanges channelName since (Ok changesResult) ->
         -- only update the model if, the request was made for the same channel name and last_seq in the model hasn't changed meanwhile
@@ -95,7 +134,6 @@ update msg model =
                 _ ->
                     (model, Cmd.none)
 
-
         OnChannelChanges channelName since (Err _) ->
             case model.channelLog of
                 RemoteData.Success channelLog ->
@@ -106,25 +144,25 @@ update msg model =
                 _ ->
                     (model, Cmd.none)
 
+        GetPrevPage ->
+            case model.channelLog of
+                RemoteData.Success channel ->
+                    (model, getPrevPage channel)
+                _ ->
+                    (model, Cmd.none)
+
+        GetNextPage ->
+            case model.channelLog of
+                RemoteData.Success channel ->
+                    (model, getNextPage channel)
+                _ ->
+                    (model, Cmd.none)
+
         OnChannelList (Ok channelList) ->
             ({ model | channelList = RemoteData.Success channelList }, Cmd.none)
 
         OnChannelList (Result.Err _) ->
             (model, Cmd.none)
-
-        DoLoadHistory ->
-            case model.channelLog of
-                RemoteData.Success channel ->
-                    case List.head channel.messages of
-                        Nothing -> (model, Cmd.none)
-                        Just head ->
-                            let end = "0"
-                                start = (Date.toTime head.timestamp) / 1000 |> toString
-                            in
-                                (model, Couch.getChannelLog channel.channelName 100 start end
-                                        |> Http.send (OnChannelBackdateResult channel.channelName head))
-                _ ->
-                    (model, Cmd.none)
 
         NoOp -> (model, Cmd.none)
 
@@ -146,10 +184,10 @@ activateRoute model route =
                 in
                     (nextModel, getLast100 channelName)
 
-            ChannelDateTimeRoute _ _->
+            ChannelDateTimeRoute channelName date ->
                 let nextModel = {model_ | channelLog=RemoteData.Loading }
                 in
-                    (nextModel, Cmd.none)
+                    (nextModel, getAt channelName date)
 
             NotFoundRoute ->
                 let nextModel = {model_ | channelLog=RemoteData.NotAsked }
@@ -171,7 +209,7 @@ view model =
         ChannelRoute channelName ->
             Views.recentChannelLog channelName model
         ChannelDateTimeRoute channelName d ->
-            Views.channelLogAt channelName d
+            Views.recentChannelLog channelName model
         NotFoundRoute ->
             Views.notFoundPage
 
