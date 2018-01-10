@@ -97,7 +97,7 @@ tableGroup channelName group values =
 
 
 tableRow row =
-    let cell1 = td [] [nickname row.sender, text "\x00A0", messageText row.message]
+    let cell1 = td [] <| [nickname row.sender, text "\x00A0"] ++ (messageText row.message)
         cell2 = td [class "timestamp"] [messageTime row.timestamp row.channel]
     in
         tr [] [cell1, cell2]
@@ -113,7 +113,7 @@ nickname sender =
         span [style css] [text sender]
 
 messageText message =
-    text message -- FIXME: autolink, simple markdown (bold, italic, monospace), emojis
+    linkify message -- FIXME: simple markdown (bold, italic, monospace)
 
 messageTime timestamp channel =
     let css = [

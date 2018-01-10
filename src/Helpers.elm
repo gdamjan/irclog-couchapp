@@ -8,6 +8,10 @@ import Dict
 import Date
 import Identicon
 import Color.Convert
+import Regex
+import Html
+import Html.Attributes
+
 
 colorize s =
     Identicon.defaultColor s
@@ -87,3 +91,38 @@ timeOf d =
 datetimeOf : Date.Date -> String
 datetimeOf d =
     dateOf d ++ "T" ++ timeOf d
+
+
+linkify : String -> List (Html.Html msg)
+linkify s =
+    let regex = Regex.regex "\\b(www\\.|https?://)[^\\s]+"
+        matcher = Regex.find (Regex.AtMost 1) regex
+    in
+        recurseLinkify matcher s []
+
+recurseLinkify : (String -> List Regex.Match) -> String -> List (Html.Html msg) -> List (Html.Html msg)
+recurseLinkify matcher string acc =
+    case matcher string of
+        match::_ ->
+            let
+                pre = String.left match.index string
+                url = match.match
+                matchEnd = match.index + (String.length url)
+                rest = String.dropLeft matchEnd string
+                acc_ = acc ++ [Html.text pre, makeurl url]
+            in
+                recurseLinkify matcher rest acc_
+        [] ->
+            acc ++ [Html.text string]
+
+shorten s =
+    if String.length s > 50 then
+        [Html.text (String.left 50 s), Html.text "…"]
+    else
+        [Html.text s]
+
+makeurl s =
+    if String.startsWith "https://" s || String.startsWith "http://" s then
+        Html.a [Html.Attributes.href s] (shorten s)
+    else
+        Html.a [Html.Attributes.href ("http://"++s)] (shorten s)

@@ -119,7 +119,7 @@ update msg model =
         OnNextPageResult _ _ (Err _) -> (model, Cmd.none)
 
         OnChannelChanges channelName since (Ok changesResult) ->
-        -- only update the model if, the request was made for the same channel name and last_seq in the model hasn't changed meanwhile
+            -- only update the model if, the request was made for the same channel name and last_seq in the model hasn't changed meanwhile
             case model.channelLog of
                 RemoteData.Success channel ->
                     if channel.last_seq == since && channel.channelName == channelName then
@@ -134,6 +134,7 @@ update msg model =
                 _ ->
                     (model, Cmd.none)
 
+        -- don't give up if the changes feed returns an error
         OnChannelChanges channelName since (Err _) ->
             case model.channelLog of
                 RemoteData.Success channelLog ->
