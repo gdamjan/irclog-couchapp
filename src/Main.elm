@@ -38,7 +38,7 @@ createChannel channelName viewResult =
 
 updateChannel channel changesResult =
     let results = List.sortBy (\doc -> Date.toTime doc.timestamp) changesResult.results
-        messages = List.append channel.messages results
+        messages = channel.messages ++ results
         last_seq = changesResult.last_seq
     in
         { channel | messages=messages, last_seq=last_seq }
