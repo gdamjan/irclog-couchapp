@@ -70,8 +70,11 @@ recentChannelLog : String -> AppModel -> Html Msg
 recentChannelLog channelName model =
     div [] [
         pageHeader ("irc logs for #" ++ channelName),
-        historyButton DoLoadHistory,
+        paginationButton "back" GetPrevPage,
         maybeLoading model.channelLog ircLogTable,
+        case model.route of
+            ChannelDateTimeRoute _ _ -> paginationButton "forward" GetNextPage
+            _ -> text "",
         pageFooter
     ]
 
@@ -124,8 +127,8 @@ messageTime timestamp channel =
     in
         a [style css, href link, id iso8601] [text (timeOf timestamp)]
 
-historyButton msg =
-    div [style [("text-align", "center")]] [button [ onClick msg ] [ text "load some history" ]]
+paginationButton txt msg =
+    div [style [("text-align", "center")]] [button [ onClick msg ] [ text txt]]
 
 pageHeader title =
     Html.header [id "header"] [
