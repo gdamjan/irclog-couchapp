@@ -89,11 +89,17 @@ update msg model =
                 RemoteData.Success channel ->
                     case (channel.channelName, List.reverse channel.messages) of
                         (channelName, last::_) ->
-                            let messages = channel.messages ++ viewResult.rows
-                                chan = { channel | messages = messages }
-                                nextModel = { model | channelLog=RemoteData.Success chan }
-                            in
-                                (nextModel, Cmd.none)
+                            case viewResult.rows of
+                                [] ->
+                                    let nextModel = { model | route = ChannelRoute channelName }
+                                    in
+                                        (nextModel, getChanges channelName viewResult.last_seq)
+                                rows ->
+                                    let messages = channel.messages ++ rows
+                                        chan = { channel | messages = messages }
+                                        nextModel = { model | channelLog=RemoteData.Success chan }
+                                    in
+                                        (nextModel, Cmd.none)
                         (_, _) ->
                             (model, Cmd.none)
                 _ ->
