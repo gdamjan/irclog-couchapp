@@ -85,7 +85,7 @@ ircLogTable channel =
 
 tableGroup channelName group values =
     let
-        link = "#/" ++ channelName ++ "/" ++ group
+        link = "#/" ++ channelName ++ "/" ++ group ++ "T00:00:00"
         groupHeading = th [colspan 2, align "right"]
             <| [a [href link, id group] [text group]]
     in
