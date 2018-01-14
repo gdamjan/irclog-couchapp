@@ -17,6 +17,15 @@
 <body>
 <script>
   var app = Elm.Main.fullscreen();
+  function flashTitle(title, flash, timeout, count) {
+    if (count % 2 == 1) { document.title = flash }
+                   else { document.title = title }
+    if (count > 0)
+      window.setTimeout(flashTitle, timeout, title, flash, timeout, count-1);
+  }
+  app.ports.flashTitle.subscribe(function([title, flash]) {
+    flashTitle(title, flash, 500, 3);
+  });
 </script>
 <a href="https://github.com/gdamjan/irclog-couchapp/tree/elm"><img
     style="position: absolute; top: 0; right: 20px; border: 0;"

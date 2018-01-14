@@ -10,7 +10,7 @@ The single page web app uses elm and couchdb
 ```
 elm-reactor
 ```
-and open http://localhost:8000/dev.html - elm-reactor will compile the source automatically when needed.
+and open http://localhost:8000/dev.html - elm-reactor will compile the source automatically when needed (will also download dependencies).
 
 
 # Production…

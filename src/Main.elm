@@ -12,7 +12,7 @@ import Views
 import Couch
 import Models exposing (..)
 import Routing exposing (parseLocation)
-
+import Ports
 
 getChanges : String -> String -> Cmd Msg
 getChanges channelName last_seq =
@@ -78,7 +78,9 @@ update msg model =
             in
                 case model.route of
                     ChannelRoute _ ->
-                        (nextModel, getChanges channelName last_seq)
+                        nextModel ! [ getChanges channelName last_seq,
+                                      Ports.flashTitle ["irclogs for #" ++ channelName, " --- ** --- "]
+                                    ]
                     _ ->
                         (nextModel, Cmd.none)
 
@@ -134,7 +136,12 @@ update msg model =
                         nextModel = { model | channelLog= RemoteData.Success chan }
                         last_seq = changesResult.last_seq
                     in
-                        (nextModel, getChanges channelName last_seq)
+                        if changesResult.rows == [] then
+                            nextModel ! [ getChanges channelName last_seq ]
+                        else
+                            nextModel ! [ getChanges channelName last_seq,
+                                          Ports.flashTitle ["irclogs for #" ++ channelName, " --- ** --- "]
+                                        ]
                     else
                         (model, Cmd.none)
                 _ ->
