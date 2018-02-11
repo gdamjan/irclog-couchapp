@@ -1,4 +1,4 @@
-.container {
+#page-loader {
   position: absolute;
   width: 30px;
   height: 30px;
@@ -9,13 +9,13 @@
   margin: auto;
 }
 
-.item {
+#page-loader span {
   width: 30px;
   height: 30px;
   position: absolute;
 }
 
-.item-1 {
+#page-loader span:nth-child(1) {
   background: rgb(187, 217, 140);
   top: 0;
   left: 0;
@@ -23,14 +23,14 @@
   animation: item-1_move 1.8s cubic-bezier(.6,.01,.4,1) infinite;
 }
 
-.item-2 {
+#page-loader span:nth-child(2) {
   background: rgb(140, 142, 217);
   top: 0;
   right: 0;
   animation: item-2_move 1.8s cubic-bezier(.6,.01,.4,0.3) infinite;
 }
 
-.item-3 {
+#page-loader span:nth-child(3) {
   background: rgb(192, 92, 88);
   bottom: 0;
   right: 0;
@@ -38,7 +38,7 @@
   animation: item-3_move 1.8s cubic-bezier(.6,.01,.4,1) infinite;
 }
 
-.item-4 {
+#page-loader span:nth-child(4) {
   background: rgb(194, 157, 110);
   bottom: 0;
   left: 0;

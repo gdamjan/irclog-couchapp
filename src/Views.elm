@@ -13,24 +13,13 @@ maybeLoading : RemoteData.RemoteData e a -> (a -> Html Msg) -> Html Msg
 maybeLoading remoteData f =
     case remoteData of
         RemoteData.Loading ->
-            loadingAnimation
+            pageLoader
         RemoteData.Success data ->
             f data
         RemoteData.Failure _ ->
             text "Failure"
         RemoteData.NotAsked ->
             text "-¿then why are we here?-"
-
-loadingAnimation =
-    div [ class "container" ]
-        [ div [class "item item-1"] []
-        , div [class "item item-2"] []
-        , div [class "item item-3"] []
-        , div [class "item item-4"] []
-        ]
-
-notFoundPage =
-    div [] [text "Not Found"]
 
 channelLogAt channelName d =
     div [] [text (toString d), pageFooter]
@@ -139,3 +128,10 @@ pageFooter =
     Html.footer [id "footer"] [
         a [href "https://irc.softver.org.mk/"] [text "irclog home page"]
     ]
+
+pageLoader =
+    div [id "page-loader"]
+        (List.repeat 4 (span [] []))
+
+notFoundPage =
+    div [] [text "Not Found"]
