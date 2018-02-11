@@ -63,7 +63,7 @@ recentChannelLog channelName model =
         maybeLoading model.channelLog ircLogTable,
         case model.route of
             ChannelDateTimeRoute _ _ -> paginationButton "forward" GetNextPage
-            _ -> text "",
+            _ -> waitingForUpdates,
         pageFooter
     ]
 
@@ -118,6 +118,15 @@ messageTime timestamp channel =
 
 paginationButton txt msg =
     div [style [("text-align", "center")]] [button [ onClick msg ] [ text txt]]
+
+waitingForUpdates =
+    let css = [
+            ("text-align","center"),
+            ("font-size", "60%"),
+            ("opacity","0.5")
+        ]
+    in
+        div [style css] [text "waiting for updates…"]
 
 pageHeader title =
     Html.header [id "header"] [
