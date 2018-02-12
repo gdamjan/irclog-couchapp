@@ -110,36 +110,48 @@ channelViewResult channelName viewResult model =
 nextPage channelName last viewResult model =
     case model.channelLog of
         RemoteData.Success channel ->
-            case (channel.channelName, List.reverse channel.messages) of
-                (channelName, last::_) ->
-                    case viewResult.rows of
-                        [] ->
-                            let nextModel = { model | route = ChannelRoute channelName }
-                            in
-                                (nextModel, getChanges channelName viewResult.last_seq)
-                        rows ->
-                            let messages = channel.messages ++ rows
-                                chan = { channel | messages = messages }
-                                nextModel = { model | channelLog=RemoteData.Success chan }
-                            in
-                                (nextModel, Cmd.none)
-                (_, _) ->
-                    (model, Cmd.none)
+            if channel.channelName == channelName && matchTail last channel.messages then
+                case viewResult.rows of
+                    [] ->
+                        let nextModel = { model | route = ChannelRoute channelName }
+                        in
+                            (nextModel, getChanges channelName viewResult.last_seq)
+                    rows ->
+                        let messages = channel.messages ++ rows
+                            chan = { channel | messages = messages }
+                            nextModel = { model | channelLog=RemoteData.Success chan }
+                        in
+                            (nextModel, Cmd.none)
+            else
+                (model, Cmd.none)
         _ ->
             (model, Cmd.none)
 
 prevPage channelName head viewResult model =
     case model.channelLog of
         RemoteData.Success channel ->
-            case (channel.channelName, channel.messages) of
-                (channelName, head::_) ->
-                    let rows = List.reverse viewResult.rows
-                        messages = rows ++ channel.messages
-                        chan = { channel | messages = messages }
-                        nextModel = { model | channelLog=RemoteData.Success chan }
-                    in
-                        (nextModel, Cmd.none)
-                (_, _) ->
-                    (model, Cmd.none)
+            if channel.channelName == channelName && matchHead head channel.messages then
+                let rows = List.reverse viewResult.rows
+                    messages = rows ++ channel.messages
+                    chan = { channel | messages = messages }
+                    nextModel = { model | channelLog=RemoteData.Success chan }
+                in
+                    (nextModel, Cmd.none)
+            else
+                (model, Cmd.none)
         _ ->
             (model, Cmd.none)
+
+matchHead head list =
+    case list of
+        h::_ ->
+            if h == head then True else False
+        [] ->
+            False
+
+matchTail tail list =
+    case List.reverse list of
+        t::_ ->
+            if t == tail then True else False
+        [] ->
+            False
