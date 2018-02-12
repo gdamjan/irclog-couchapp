@@ -26,7 +26,6 @@ body > div { padding-bottom: 4rem } /* pad enough so content doesn't go under fo
   padding: 1rem;
   background-color: #efefef;
   border-top: 1px dashed #aaaaaa;
-  margin-top: 1.5em;
   padding: 8px 6px 0.5em;
 }
 #footer a { text-decoration: none; color: #555555; }
