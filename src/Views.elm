@@ -126,7 +126,7 @@ waitingForUpdates =
             ("opacity","0.5")
         ]
     in
-        div [style css] [text "waiting for updates…"]
+        div [style css] [text "…waiting for updates…"]
 
 pageHeader title =
     Html.header [id "header"] [
