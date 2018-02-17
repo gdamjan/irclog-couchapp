@@ -36,10 +36,10 @@ queryEscape string =
 {-
     Send a message after a delay
 -}
-delay : Time.Time -> msg -> Cmd msg
-delay time msg =
+delay : Time.Time -> Task.Task x a -> Task.Task x a
+delay time task =
   Process.sleep time
-  |> Task.perform (\_ -> msg)
+  |> Task.andThen (\_ -> task)
 
 {-
     Group a list of items by a key.
@@ -53,6 +53,12 @@ groupWith group list =
     in
         List.foldr makeGroups Dict.empty list
         |> Dict.toList
+
+
+sortByTimestamp : List { a | timestamp : Date.Date } -> List { a | timestamp : Date.Date }
+sortByTimestamp list =
+    List.sortBy (\doc -> Date.toTime doc.timestamp) list
+
 
 month : Date.Date -> Int
 month d =
