@@ -3,7 +3,6 @@ module Channel exposing (..)
 import Http
 import Time
 import Date
-import Process
 import Task
 import Ports
 
@@ -11,23 +10,31 @@ import RemoteData
 
 import Models exposing (..)
 import Couch
+import Helpers exposing (delay, sortByTimestamp)
 
 
 getLast100 : String -> Cmd Msg
 getLast100 channelName =
     Couch.getLast100Messages channelName
-    |> Http.send (OnChannelViewResult channelName)
+    |> Http.toTask
+    |> Task.map (\response -> {response | rows=sortByTimestamp response.rows})
+    |> Task.attempt (OnChannelViewResult channelName)
 
 getAt : String -> Date.Date -> Cmd Msg
 getAt channelName date =
     Couch.getAt channelName date
-    |> Http.send (OnChannelViewResult channelName)
+    |> Http.toTask
+    |> Task.map (\response -> {response | rows=sortByTimestamp response.rows})
+    |> Task.attempt (OnChannelViewResult channelName)
+
 
 getPrevPage channel =
     case channel.messages of
         head::_ ->
             Couch.getPrevPage channel.channelName head
-            |> Http.send (OnPrevPageResult channel.channelName head)
+            |> Http.toTask
+            |> Task.map (\response -> {response | rows=List.reverse response.rows})
+            |> Task.attempt (OnPrevPageResult channel.channelName head)
         [] -> Cmd.none
 
 getNextPage channel =
@@ -37,27 +44,31 @@ getNextPage channel =
             |> Http.send (OnNextPageResult channel.channelName last)
         [] -> Cmd.none
 
+
+changesTask channelName last_seq =
+    Couch.getChanges channelName last_seq
+    |> Http.toTask
+    |> Task.map (\response -> {response | rows=sortByTimestamp response.rows})
+
 getChanges : String -> String -> Cmd Msg
 getChanges channelName last_seq =
-    Couch.getChanges channelName last_seq
-    |> Http.send (OnChannelChanges channelName last_seq)
+    changesTask channelName last_seq
+    |> Task.attempt (OnChannelChanges channelName last_seq)
 
 delayedGetChanges : Float -> String -> String -> Cmd Msg
-delayedGetChanges delay channelName last_seq =
-    Process.sleep (delay*Time.second)
-    |> Task.andThen (\_ -> Http.toTask (Couch.getChanges channelName last_seq))
-    |> Task.attempt (\result -> OnChannelChanges channelName last_seq result)
+delayedGetChanges time channelName last_seq =
+    delay time (changesTask channelName last_seq)
+    |> Task.attempt (OnChannelChanges channelName last_seq)
 
 createChannel channelName viewResult =
-    let messages = List.sortBy (\doc -> Date.toTime doc.timestamp) viewResult.rows
+    let messages = viewResult.rows
         last_seq = viewResult.last_seq
     in
         { channelName=channelName, messages=messages, last_seq=last_seq }
 
 updateChannel channel changesResult =
-    let results = List.sortBy (\doc -> Date.toTime doc.timestamp) changesResult.rows
-        last_seq = changesResult.last_seq
-        messages = channel.messages ++ results
+    let last_seq = changesResult.last_seq
+        messages = channel.messages ++ changesResult.rows
     in
         { channel | messages=messages, last_seq=last_seq }
 
@@ -69,7 +80,7 @@ updateChanges channelName since changesResult model =
             if channel.last_seq == since && channel.channelName == channelName then
             let
                 chan = updateChannel channel changesResult
-                nextModel = { model | channelLog= RemoteData.Success chan }
+                nextModel = { model | channelLog=RemoteData.Success chan }
                 last_seq = changesResult.last_seq
             in
                 if List.isEmpty changesResult.rows then
@@ -88,7 +99,7 @@ errorChanges channelName since err model =
     case model.channelLog of
         RemoteData.Success channelLog ->
             if channelLog.last_seq == since && channelLog.channelName == channelName then
-                (model, delayedGetChanges 5 channelName since)
+                (model, delayedGetChanges (5*Time.second) channelName since)
             else
                 (model, Cmd.none)
         _ ->
@@ -131,8 +142,7 @@ prevPage channelName head viewResult model =
     case model.channelLog of
         RemoteData.Success channel ->
             if channel.channelName == channelName && matchHead head channel.messages then
-                let rows = List.reverse viewResult.rows
-                    messages = rows ++ channel.messages
+                let messages = viewResult.rows ++ channel.messages
                     chan = { channel | messages = messages }
                     nextModel = { model | channelLog=RemoteData.Success chan }
                 in
