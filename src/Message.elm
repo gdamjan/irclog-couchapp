@@ -1,8 +1,11 @@
-module Message exposing (..)
+module Message exposing (toHtml)
 
 import Html
 import Html.Attributes
 import Regex
+import Identicon
+import Color.Convert
+
 
 {-
 TODO:
@@ -13,6 +16,34 @@ TODO:
 - italic between _ _
 -}
 
+toHtml : { a | message : String, sender : String } -> List (Html.Html msg)
+toHtml row =
+    nickname row.sender :: spacer :: linkify row.message
+
+
+nickname : String -> Html.Html msg
+nickname sender =
+    let css = [
+            ("font-size", "70%"),
+            ("padding", "1px 2px"),
+            ("background-color", colorize sender),
+            ("color", "black")
+        ]
+    in
+        Html.span [Html.Attributes.style css] [Html.text sender]
+
+spacer =
+    Html.text "\x00A0"
+
+colorize : String -> String
+colorize s =
+    Identicon.defaultColor s
+    |> Color.Convert.colorToCssRgb
+
+linkify : String -> List (Html.Html msg)
+linkify s =
+    recurseLinkify matcher s []
+
 urlRegex : Regex.Regex
 urlRegex =
     Regex.regex """\\b((?:(?:([a-z][\\w\\.-]+:/{1,3})|www|ftp\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|\\}\\]|[^\\s`!()\\[\\]{};:'\".,<>?%1%2%3%4%5%6])|[a-z0-9.\\-+_]+@[a-z0-9.\\-]+[.][a-z]{1,5}[^\\s/`!()\\[\\]{};:'\".,<>?]))"""
@@ -20,10 +51,6 @@ urlRegex =
 matcher : String -> List Regex.Match
 matcher =
     Regex.find (Regex.AtMost 1) urlRegex
-
-linkify : String -> List (Html.Html msg)
-linkify s =
-    recurseLinkify matcher s []
 
 recurseLinkify : (String -> List Regex.Match) -> String -> List (Html.Html msg) -> List (Html.Html msg)
 recurseLinkify matcher string acc =

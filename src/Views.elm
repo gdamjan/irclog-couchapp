@@ -7,7 +7,7 @@ import RemoteData
 
 import Models exposing (..)
 import Helpers exposing (..)
-import Message exposing (linkify)
+import Message
 
 
 maybeLoading : RemoteData.RemoteData e a -> (a -> Html Msg) -> Html Msg
@@ -87,23 +87,10 @@ tableGroup channelName group values =
 
 
 tableRow row =
-    let cell1 = td [] <| [nickname row.sender, text "\x00A0"] ++ (messageText row.message)
+    let cell1 = td [] <| Message.toHtml row
         cell2 = td [class "timestamp"] [messageTime row.timestamp row.channel]
     in
         tr [] [cell1, cell2]
-
-nickname sender =
-    let css = [
-            ("font-size", "70%"),
-            ("padding", "1px 2px"),
-            ("background-color", colorize sender),
-            ("color", "black")
-        ]
-    in
-        span [style css] [text sender]
-
-messageText message =
-    linkify message -- FIXME: simple markdown (bold, italic, monospace)
 
 messageTime timestamp channel =
     let css = [

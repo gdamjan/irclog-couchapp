@@ -1,4 +1,4 @@
-module Helpers exposing (.. )
+module Helpers exposing (..)
 
 import Http exposing (encodeUri)
 import Process
@@ -6,14 +6,7 @@ import Task
 import Time
 import Dict
 import Date
-import Identicon
-import Color.Convert
 
-
-colorize : String -> String
-colorize s =
-    Identicon.defaultColor s
-    |> Color.Convert.colorToCssRgb
 
 url : String -> List (String,String) -> String
 url baseUrl args =
