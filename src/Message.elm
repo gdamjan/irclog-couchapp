@@ -5,35 +5,50 @@ import Html.Attributes
 import Regex
 import Identicon
 import Color.Convert
+import Char
 
-
-{-
-TODO:
-- action message (^\001ACTION xyz\001$)
-- url in message (handle trailing parens, quotes etc)
-- monospace/code between ` `
-- bold between * *
-- italic between _ _
+{- TODO:
+ -      monospace/code between ` `
+ -      bold between * *
+ -      italic between _ _
 -}
 
 toHtml : { a | message : String, sender : String } -> List (Html.Html msg)
 toHtml row =
-    nickname row.sender :: spacer :: linkify row.message
+    nickname row.sender :: spacer :: messageText row
 
+messageText : { a | sender : String, message : String } -> List (Html.Html msg)
+messageText row =
+    if isAction row.message then
+        let message = stripAction row.message
+        in
+            [Html.span [Html.Attributes.style (colorizedCss row.sender)] (linkify message)]
+    else
+        linkify row.message
 
 nickname : String -> Html.Html msg
 nickname sender =
-    let css = [
-            ("font-size", "70%"),
-            ("padding", "1px 2px"),
-            ("background-color", colorize sender),
-            ("color", "black")
-        ]
-    in
-        Html.span [Html.Attributes.style css] [Html.text sender]
+    Html.span [Html.Attributes.style (colorizedCss sender)] [Html.text sender]
 
 spacer =
-    Html.text "\x00A0"
+    Html.text "\x00A0" -- non breaking whitespace
+
+action =
+    String.fromChar (Char.fromCode 1) ++ "ACTION "
+
+isAction s =
+    String.startsWith action s
+
+stripAction s =
+    String.slice (String.length action) -1 s
+
+colorizedCss s =
+    [
+        ("font-size", "70%"),
+        ("padding", "1px 2px"),
+        ("background-color", colorize s),
+        ("color", "black")
+    ]
 
 colorize : String -> String
 colorize s =
