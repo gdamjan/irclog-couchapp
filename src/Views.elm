@@ -7,6 +7,7 @@ import RemoteData
 
 import Models exposing (..)
 import Helpers exposing (..)
+import Message exposing (linkify)
 
 
 maybeLoading : RemoteData.RemoteData e a -> (a -> Html Msg) -> Html Msg
