@@ -17,7 +17,7 @@ body { position: relative; min-height: 100%; }
   box-sizing: inherit;
 }
 
-body > div { padding-bottom: 4rem } /* pad enough so content doesn't go under footer */
+body > div { padding-bottom: 3rem } /* pad enough so content doesn't go under footer */
 #footer {
   position: absolute;
   right: 0;
@@ -25,7 +25,7 @@ body > div { padding-bottom: 4rem } /* pad enough so content doesn't go under fo
   left: 0;
   background-color: #efefef;
   border-top: 1px dashed #aaaaaa;
-  padding: 8px 6px 0.5em;
+  padding: 8px 6px 10px;
 }
 #footer a { text-decoration: none; color: #555555; }
 

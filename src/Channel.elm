@@ -5,7 +5,7 @@ import Time
 import Date
 import Task
 import Ports
-
+import Dom.Scroll
 import RemoteData
 
 import Models exposing (..)
@@ -87,7 +87,8 @@ updateChanges channelName since changesResult model =
                     nextModel ! [ getChanges channelName last_seq ]
                 else
                     nextModel ! [ getChanges channelName last_seq,
-                                    Ports.flashTitle ["irclogs for #" ++ channelName, " --- ** --- "]
+                                    Ports.flashTitle ["irclogs for #" ++ channelName, " --- ** --- "],
+                                    Task.attempt (\_ -> NoOp) (Dom.Scroll.toBottom "scrollme")
                                 ]
             else
                 (model, Cmd.none)
