@@ -20,7 +20,7 @@ To compile run `make build` that will build everything in `dist/`,
 which you can then copy to a web server (or just serve with `python -m http.server`).
 `uglifyjs` is required for this too.
 
-Finally run `make publish` to push a specially prepared design document to a couchdb instance. (TODO which one)
+Finally run `make COUCHDB=https://user:pass@server/db publish` to push a specially prepared design document to a couchdb instance.
 
 
 # Requirements
