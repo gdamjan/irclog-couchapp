@@ -31,7 +31,7 @@ compile: $(DIST)/$(MAIN_JS)
 
 # poor mans templating
 $(DIST)/index.html: TIMESTAMP = $(shell date -r $(DIST)/$(MAIN_JS) +%s)
-$(DIST)/index.html: dev.html $(DIST)/$(MAIN_JS)
+$(DIST)/index.html: index.html $(DIST)/$(MAIN_JS)
 	@mkdir -p $(dir $@)
 	sed 's#/_compile/src/Main.elm#'$(MAIN_MIN_JS)?$(TIMESTAMP)'#' $< > $@
 

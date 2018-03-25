@@ -9,7 +9,7 @@ in couchdb attachments.
 
 # Quick start - for developers
 
-Clone this repo, run `elm-reactor` and open [http://localhost:8000/dev.html]. elm-reactor
+Clone this repo, run `elm-reactor` and open [http://localhost:8000/index.html]. elm-reactor
 will compile the source automatically when needed (will also download dependencies).
 Then just edit files and hit refresh.
 
