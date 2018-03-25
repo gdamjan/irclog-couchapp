@@ -1,29 +1,12 @@
-- scroll to bottom
 - fancy messages
 - search component
 - title flash ✓ (notifications?)
 
-- groupBy + tbody ✓
-- handle topic change in results ✓
-- permalinks ✓
-- retry changes longpoll ✓
-- home page - channel list ✓
-- navigation:
-  · different channel ✓
-  · point in history ✓ (but disable changes) ✓
-- paging ✓
-  · fix duplicate message on nextpage (will need to take doc ids too) ✓
-  · start changes feed when at the end - and then remove button ✓
-
-- colors ✓
 - settings ?
 - fancy reports (tags, todo lists, etc…)
 - online status / latency
-  · timeout of Http.send (watchdog task?) ✓
-- fix Chrome ✓
-- Android Fennec and Browser ✓
+  ✓ timeout of Http.send (watchdog task?)
 - IE?
-- favicon ✓
 
 elm 0.19:
 - elm-lang/browser … https://github.com/elm-lang/browser/blob/master/src/Browser.elm#L171
