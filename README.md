@@ -27,3 +27,4 @@ Finally run `make COUCHDB=https://user:pass@server/db publish` to push a special
 
 * [elm build tools](https://guide.elm-lang.org/install.html)
 * [couchapp](http://couchapp.readthedocs.io/en/latest/couchapp/install.html) to push files as a design document in couchdb
+* [uglifyjs](https://github.com/mishoo/UglifyJS2) for production builds
