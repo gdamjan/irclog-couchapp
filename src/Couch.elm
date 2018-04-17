@@ -2,6 +2,7 @@ module Couch exposing (..)
 
 import Http
 import Time
+import Json.Encode as Encode
 import Json.Decode as Decode
 import Date exposing (Date)
 
@@ -64,16 +65,16 @@ getChanges channel since =
             ("feed","longpoll"),
             ("timeout", toString <| timeout * 1000),
             ("include_docs", "true"),
-            ("filter","log/channel"),
-            ("channel", channel),
+            ("filter","_selector"),
             ("since", since)
         ]
+        selector = Encode.object [("selector", Encode.object [("channel", Encode.string channel)])]
     in
         Http.request {
-            method = "GET",
+            method = "POST",
             headers = [Http.header "Accept" "application/json"],
             url = changesUrl,
-            body = Http.emptyBody,
+            body = Http.jsonBody selector,
             expect = Http.expectJson changesDecoder,
             timeout = Just (timeout * Time.second * 1.15),
             withCredentials = False
