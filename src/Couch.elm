@@ -9,12 +9,14 @@ import Date exposing (Date)
 import Helpers exposing (url)
 import Models exposing (..)
 
+jsonInfinity = Encode.object [] -- in couchdb, {} collates after all strings or lists
+jsonZero = Encode.int 0         -- in couchdb, 0 collates before all strings or lists or objects
 
-getChannelLog : String -> Int -> String -> String -> List (String, String) -> Http.Request ViewResult
+getChannelLog : String -> Int -> Encode.Value -> Encode.Value -> List (String, String) -> Http.Request ViewResult
 getChannelLog channel limit start end args =
     let
-        startkey = "[\"" ++ channel ++ "\"," ++ start ++ "]"
-        endkey = "[\"" ++ channel ++ "\"," ++ end  ++ "]"
+        startkey = Encode.encode 0 (Encode.list [Encode.string channel, start])
+        endkey = Encode.encode 0 (Encode.list [Encode.string channel, end])
         query = [
             ("startkey", startkey),
             ("endkey", endkey),
@@ -29,7 +31,7 @@ getChannelLog channel limit start end args =
 
 getLastMessages : String -> Int -> Http.Request ViewResult
 getLastMessages channel num =
-    getChannelLog channel num "{}" "0" [("descending", "true")]
+    getChannelLog channel num jsonInfinity jsonZero [("descending", "true")]
 
 
 getLast100Messages : String -> Http.Request ViewResult
@@ -38,23 +40,23 @@ getLast100Messages channel =
 
 getAt : String -> Date.Date -> Http.Request ViewResult
 getAt channelName date =
-    let start = (Date.toTime date) / 1000 |> toString
+    let start = (Date.toTime date) / 1000 |> Encode.float
     in
-        getChannelLog channelName 100 start "{}" [("descending", "false")]
+        getChannelLog channelName 100 start jsonInfinity [("descending", "false")]
 
 getPrevPage : String -> IrcMessage -> Http.Request ViewResult
 getPrevPage channelName message =
-    let start = (Date.toTime message.timestamp) / 1000 |> toString
+    let start = (Date.toTime message.timestamp) / 1000 |> Encode.float
         limit = 100
     in
-        getChannelLog channelName limit start "0" [("descending", "true")]
+        getChannelLog channelName limit start jsonZero [("descending", "true")]
 
 getNextPage : String -> IrcMessage -> Http.Request ViewResult
 getNextPage channelName message =
-    let start = (Date.toTime message.timestamp) / 1000 |> toString
+    let start = (Date.toTime message.timestamp) / 1000 |> Encode.float
         limit = 100
     in
-        getChannelLog channelName limit start "{}" [("descending", "false"), ("startkey_docid", message.id), ("skip","1")]
+        getChannelLog channelName limit start jsonInfinity [("descending", "false"), ("startkey_docid", message.id), ("skip","1")]
 
 
 getChanges : String -> String -> Http.Request ChangesResult
