@@ -3,6 +3,7 @@ module Views exposing (..)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, href, id, class, colspan, align, title)
 import Html exposing (..)
+import Html.Keyed
 import RemoteData
 
 import Models exposing (..)
@@ -21,9 +22,6 @@ maybeLoading remoteData f =
             text "Failure"
         RemoteData.NotAsked ->
             text "-¿then why are we here?-"
-
-channelLogAt channelName d =
-    div [] [text (toString d), pageFooter]
 
 homePage model =
     let css = [("padding", "6px")]
@@ -72,7 +70,9 @@ recentChannelLog channelName model =
 ircLogTable : ChannelLog -> Html msg
 ircLogTable channel =
     Html.table [] (
-        groupWith (\m -> dateOf m.timestamp) channel.messages
+        channel.messages
+        --|> List.sortBy (\m -> m.timestamp)
+        |> groupWith (\m -> dateOf m.timestamp)
         |> List.map (\(group, values) -> tableGroup channel.channelName group values)
     )
 
@@ -81,16 +81,18 @@ tableGroup channelName group values =
         link = "#/" ++ channelName ++ "/" ++ group ++ "T00:00:00"
         groupHeading = th [colspan 2, align "right"]
             <| [a [href link, id group] [text group]]
+        key = link
     in
-        tbody []
-            <| tr [] [ groupHeading ] :: List.map tableRow values
+        Html.Keyed.node "tbody" []
+            <| (key, tr [] [ groupHeading ]) :: List.map tableRow values
 
 
 tableRow row =
     let cell1 = td [] <| Message.toHtml row
         cell2 = td [class "timestamp"] [messageTime row.timestamp row.channel]
+        key = row.id
     in
-        tr [] [cell1, cell2]
+        (key, tr [] [cell1, cell2])
 
 messageTime timestamp channel =
     let css = [
