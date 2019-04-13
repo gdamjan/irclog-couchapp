@@ -12750,16 +12750,16 @@ var _gdamjan$irclog_couchapp$Views$paginationButton = F2(
 				_1: {ctor: '[]'}
 			});
 	});
-var _gdamjan$irclog_couchapp$Views$messageTime = F2(
-	function (timestamp, channel) {
-		var iso8601 = _gdamjan$irclog_couchapp$Helpers$datetimeOf(timestamp);
+var _gdamjan$irclog_couchapp$Views$messageTime = F3(
+	function (timestamp, channel, msgId) {
 		var link = A2(
 			_elm_lang$core$Basics_ops['++'],
 			'#/',
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				channel,
-				A2(_elm_lang$core$Basics_ops['++'], '/', iso8601)));
+				A2(_elm_lang$core$Basics_ops['++'], '/', msgId)));
+		var iso8601 = _gdamjan$irclog_couchapp$Helpers$datetimeOf(timestamp);
 		var css = {
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 'font-size', _1: '80%'},
@@ -12787,7 +12787,7 @@ var _gdamjan$irclog_couchapp$Views$messageTime = F2(
 					_0: _elm_lang$html$Html_Attributes$href(link),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$id(iso8601),
+						_0: _elm_lang$html$Html_Attributes$id(msgId),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -12810,7 +12810,7 @@ var _gdamjan$irclog_couchapp$Views$tableRow = function (row) {
 		},
 		{
 			ctor: '::',
-			_0: A2(_gdamjan$irclog_couchapp$Views$messageTime, row.timestamp, row.channel),
+			_0: A3(_gdamjan$irclog_couchapp$Views$messageTime, row.timestamp, row.channel, row.id),
 			_1: {ctor: '[]'}
 		});
 	var cell1 = A2(
