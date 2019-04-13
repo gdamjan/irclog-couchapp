@@ -1,0 +1,19 @@
+dist: xenial
+language: elm
+elm: 0.18.0
+
+# override the default script cause I hate elm-format
+script: make compile
+
+before_deploy:
+  - npm install -g uglify-js
+  - make build
+
+deploy:
+  skip_cleanup: true
+  local-dir: dist/
+  provider: pages
+  keep-history: true
+  github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  on:
+    branch: master
