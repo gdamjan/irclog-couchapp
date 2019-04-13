@@ -89,12 +89,12 @@ tableGroup channelName group values =
 
 tableRow row =
     let cell1 = td [] <| Message.toHtml row
-        cell2 = td [class "timestamp"] [messageTime row.timestamp row.channel]
+        cell2 = td [class "timestamp"] [messageTime row.timestamp row.channel row.id]
         key = row.id
     in
         (key, tr [] [cell1, cell2])
 
-messageTime timestamp channel =
+messageTime timestamp channel msgId =
     let css = [
             ("font-size", "80%"),
             ("font-family", "monospace"),
@@ -102,9 +102,9 @@ messageTime timestamp channel =
             ("color", "#808080")
         ]
         iso8601 = datetimeOf timestamp
-        link = "#/" ++ channel ++ "/" ++ iso8601
+        link = "#/" ++ channel ++ "/" ++ msgId
     in
-        a [style css, href link, id iso8601] [text (timeOf timestamp)]
+        a [style css, href link, id msgId] [text (timeOf timestamp)]
 
 paginationButton txt msg =
     div [style [("text-align", "center")]] [button [ onClick msg ] [ text txt]]
