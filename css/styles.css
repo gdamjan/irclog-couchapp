@@ -1,0 +1,89 @@
+@import 'loader.css';
+
+@media screen
+  and (min-device-width: 1600px)  {
+      html { font-size: 16pt; line-height: 1.25; }
+}
+html {
+  height: 100%;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+body { position: relative; min-height: 100%; }
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body > div { padding-bottom: 3rem } /* pad enough so content doesn't go under footer */
+#footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #efefef;
+  border-top: 1px dashed #aaaaaa;
+  padding: 8px 6px 10px;
+}
+#footer a { text-decoration: none; color: #555555; }
+
+#header {
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+  color: #444444;
+  padding: 1em 6px;
+}
+
+table tbody tr th { color: #a0a0a0; border-top: 1px dashed #a0a0a0 }
+table tbody tr th a { color: #808080 }
+table td.timestamp { width: 1%; vertical-align: top }
+
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	/*font-size: 100%;
+	font: inherit;*/
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: separate;
+	border-spacing: 2px 2px;
+	padding: 4px;
+	width: 100%;
+}
+tt { background-color: #f0f0f0 }
